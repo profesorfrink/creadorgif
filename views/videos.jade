@@ -1,0 +1,16 @@
+extends layout
+block css
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.10.7/video-js.min.css")
+block content
+
+    table.table.table-stripped
+        each video in videos
+            tr
+                td #{ video.nombre }
+                td.col-xs-6.col-lg-3
+                    video.img-responsive(id="#{video._id}", poster="/images/#{video.screenshot}", class="video-js", controls preload="auto")
+                        source(src="/videos/#{video.nombre}", type='video/mp4')
+
+                td: a(href="/desdevideo?idVideo=#{video._id}") Crear gif desde este video
+block js
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.10.7/video.min.js")

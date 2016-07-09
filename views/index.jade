@@ -1,0 +1,74 @@
+extends layout
+
+block css
+    link(rel="stylesheet", href="//cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.10.7/video-js.min.css")
+    link(rel="stylesheet", href="https://cdn.jsdelivr.net/jquery.nouislider/8.5.0/nouislider.min.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/unitegallery/1.7.28/css/unite-gallery.min.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/unitegallery/1.7.28/themes/default/ug-theme-default.css")
+block content
+  h1 Generador de gifs animados
+  .col-xs-12.col-sm-5.col-md-6
+  form#uploader.dropzone(action="/uploads", enctype="multipart/form-data", method="POST")
+    .fallback
+        input(name="file", type="file", multiple)
+  .text-center
+    .col-xs-12.col-md-5.col-lg-4
+        #contenedorVideo
+
+        #contenedorPreview
+
+        hr
+        button(class="btn btn-primary btn-block js-crear-gif") Crear gif
+    .col-xs-12.col-md-7.col-lg-8
+        h2 Últimas imágenes subidas
+        div#galeria
+            each imagen in imagenes
+                a
+                    img(alt="Peppers", src="/gifs/#{imagen.nombre}", data-image="/gifs/#{imagen.nombre}", data-description="Those are peppers", style="display:none")
+
+block js
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.10.7/video.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.10.7/lang/es.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js")
+    script(src="https://cdn.jsdelivr.net/jquery.nouislider/8.5.0/nouislider.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/unitegallery/1.7.28/js/unitegallery.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/unitegallery/1.7.28/themes/tiles/ug-theme-tiles.min.js")
+    script(src="/socket.io/socket.io.js")
+    script(src="/javascripts/index.js")
+    script(type="x-handlebars")#tplImagen.
+        <a>
+            <img alt="Peppers" src="/gifs/{{nombre}}", data-image="/gifs/{{nombre}}", data-description="Those are peppers", style="display:none" />
+        </a>
+    script(type="x-handlebars")#tplVideo.
+        <video id="{{filename}}" class="video-js" controls preload="auto" style="margin: 1em;"
+          poster="/images/{{ snapshot }}" data-setup="{}">
+            <source src="/videos/{{ src }}" type='video/mp4'>
+            <source src="/videos/{{ src }}" type='video/webm'>
+            <p class="vjs-no-js">
+              To view this video please enable JavaScript, and consider upgrading to a web browser that
+              <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+            </p>
+          </video>
+          <div class="col-xs-12">
+              <div id="range-{{filename}}" />
+              <div style="padding: 1em;">
+                <span id="desde" style="float: left;"></span>
+                <span id="hasta" class="pull-right"></span>
+             </div>
+          </div>
+          <input class="form-control" id="texto" placeholder="Ingrese el texto aquí" />
+    script(type="x-handlebars")#tplVideoPreview.
+        <h3>Previsualización del segmento seleccionado</h3>
+        <video id="{{filename}}" class="video-js" controls preload="auto" style="margin: 1em;"
+          poster="/images/{{ snapshot }}" data-setup="{}">
+            <source src="/videos/{{ src }}" type='video/mp4'>
+            <source src="/videos/{{ src }}" type='video/webm'>
+            <p class="vjs-no-js">
+              To view this video please enable JavaScript, and consider upgrading to a web browser that
+              <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+            </p>
+          </video>
+          
+         

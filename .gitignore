@@ -1,0 +1,23 @@
+# OS
+# ===========
+.DS_Store
+ehthumbs.db
+Icon?
+Thumbs.db
+
+
+# Node and related ecosystem
+# ==========================
+dump.rdb
+.nodemonignore
+.sass-cache/
+node_modules/
+public/lib/
+app/tests/coverage/
+.bower-*/
+.idea/
+coverage/
+public/images/
+public/gifs/
+public/videos/
+exports/
