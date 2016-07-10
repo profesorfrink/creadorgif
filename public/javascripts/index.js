@@ -1,5 +1,5 @@
 'use script';
-var socket = io();
+
 
 
 $(document).ready( function () {
@@ -9,10 +9,7 @@ $(document).ready( function () {
     var $video;
     var $galeria = $('#galeria');
 
-    socket.on('imagenProcesada', function(imagen){
-        console.log('imagen', imagen);
-        alert( 'Se completó el proceso ');
-    });
+    
 
     $galeria.unitegallery();
     
@@ -72,6 +69,33 @@ $(document).ready( function () {
                   };
                   var metadata = JSON.stringify(responseText.metadata);
                   $preview.append(  "<a class='btn btn-success btn-block js-seleccionar'  data-video='"+ responseText.filename + "' data-metadata='" + metadata +" '>Seleccionar</a> " );
+
+
+                
+                var render = templateVideo( {
+                    filename: responseText.filename,
+                    metadata: metadata,
+                    snapshot: responseText.filename + '.png',
+                    src: responseText.filename
+                });
+                $('#contenedorVideo').html(render);
+
+                $video = $(render);
+                
+                var idRange = 'range-' + responseText.filename;
+                var connectSlider = document.getElementById(idRange);
+                var fin = Math.floor(responseText.metadata.duration);
+                noUiSlider.create(connectSlider, {
+                    start: [0, fin],
+                    connect: false,
+                    step: 1,
+                    range: {
+                        'min': 0,
+                        'max': fin
+                    }
+                });
+
+                connectSlider.noUiSlider.on('update', onUpdateRange);
                               
                 });
 
@@ -184,7 +208,10 @@ $(document).ready( function () {
                 data: datos
             })
             .done(function() {
-                console.log("success");
+                Dropzone.forElement("#uploader").removeAllFiles(true);
+                $('#contenedorVideo').html('');
+                $('#contenedorPreview').html('');
+                swal("Se ha comenzado con el proceso del video", "Cuando termine estará disponible en la lista de imágenes creadas", "success")
             })
             .fail(function() {
                 console.log("error");

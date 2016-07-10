@@ -42,7 +42,7 @@ var upload = multer({
 });
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    db.find({}).sort({ fecha: -1 }).limit(20).exec( function (err, imagenes ) {
+    db.find({}).sort({ nombre: -1 }).limit(10).exec( function (err, imagenes ) {
         if ( err ) {
             return next( err );
         } else {
