@@ -21,4 +21,4 @@ public/images/
 public/gifs/
 public/videos/
 exports/
-db/
+db/*
