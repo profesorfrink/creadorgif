@@ -13,7 +13,8 @@ var kue = require('kue');
 var uuid = require('uuid');
 var jobs = kue.createQueue(); 
 var session = require('express-session');
-
+var validar = require('../middleware/validar');
+var gm = require('gm');
 
 var db = new nedb({
     filename: path.join( __dirname, '../db/imagenes.db'), 
@@ -66,7 +67,17 @@ router.post('/uploads', upload.single('file'), function ( req, res, next ) {
                 nombres =  filenames.join(', ');
               })
               .on('end', function(err, par1) {
-                done(null, nombres);
+                var pathImagenOptimizada =destinoImagenes + '/' + uuid.v4() + '.jpg';
+                gm( destinoImagenes + '/' +nombres )    // currently a png
+                    .compress('jpeg')
+                    .quality(70)
+                    .write(pathImagenOptimizada,  function ( err ) {
+                        if ( err ) {
+                            return done ( err );
+                        } else {
+                            done ( null, pathImagenOptimizada );
+                        }
+                    });
               })
               .screenshots({
                 // Will take screens at 20%, 40%, 60% and 80% of the video
@@ -79,10 +90,11 @@ router.post('/uploads', upload.single('file'), function ( req, res, next ) {
             if ( err ) {
                 return next ( err );
             } else {
+
                 var video = {
                     nombre: req.file.filename,
                     metadata: respuestas[0],
-                    screenshot: respuestas[1]
+                    screenshot: path.basename(respuestas[1])
                 };
 
                 dbVideos.insert( video, function ( err, videoGuardado ) {
@@ -91,7 +103,8 @@ router.post('/uploads', upload.single('file'), function ( req, res, next ) {
                     } else {
                         res.status(200).send({
                             filename: videoGuardado.nombre,
-                            metadata: respuestas[0].format
+                            metadata: respuestas[0].format,
+                            screenshot: videoGuardado.screenshot
                         });
                     }
                 });   
@@ -100,7 +113,7 @@ router.post('/uploads', upload.single('file'), function ( req, res, next ) {
     
 });
 
-router.post('/generar', function ( req, res, next ) {
+router.post('/generar',  validar.checkDatos, function ( req, res, next ) {
     var datos = req.body;
     var input = destino + '/' + datos.filename;
     var output = destinoGifs + '/' + uuid.v4() + '.gif';
@@ -143,27 +156,38 @@ jobs.process('procesar', function (job, done){
 
     stream.on( 'finish', function () {
         
-        var imagen = {
-            path: job.data.output,
-            nombre: path.basename ( job.data.output ),
-            fecha: Date.now(),
-            desde: job.data.options.from,
-            hasta:  job.data.options.to,
-            texto: job.data.options.text,
-            colores: job.data.options.colors,
-            resize: job.data.options.resize,
-            video: job.data.input,
-            ip: job.data.ip
-        };
+        async.parallel([
+            function ( done ) {
+                var imagen = {
+                    path: job.data.output,
+                    nombre: path.basename ( job.data.output ),
+                    fecha: Date.now(),
+                    desde: job.data.options.from,
+                    hasta:  job.data.options.to,
+                    texto: job.data.options.text,
+                    colores: job.data.options.colors,
+                    resize: job.data.options.resize,
+                    video: job.data.input,
+                    ip: job.data.ip
+                };
+                db.insert( imagen, done );
+            },
+            function ( done ) {
+                var pathFrame =destinoImagenes + '/' + uuid.v4() + '.png';
+                gm( job.data.output + '[0]')
+                    .write(pathFrame, done );
+            },
+            
+            ], function ( err, resultados ) {
+                if ( err ) {
+                    return done ( err );
+                } else {
+                    done ( null, resultados[0] );
+                }
+        }) ;
+        
 
-        db.insert( imagen, function ( err, imagenGuardada) {
-            if ( err ) {
-                return done ( err );
-            }  else {
-                //req.app.emit('imagenNueva', imagenGuardada );
-                done(null, imagenGuardada);
-            }
-        });
+        
 
 });
 

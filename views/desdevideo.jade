@@ -21,8 +21,7 @@ block content
         .text-center.center-block()
             button.btn.btn-primary.js-generar(type="button", style="margin: 2em;") Generar imagen
     .col-xs-12.col-md-6
-        
-        #contenedorPreview
+            #contenedorPreview
 
 block js
     script(src="https://cdn.jsdelivr.net/jquery.nouislider/8.5.0/nouislider.min.js")
@@ -31,7 +30,7 @@ block js
     script(src="/javascripts/desdevideo.js")
     script(type="x-handlebars")#tplVideoPreview.
         <h3>Previsualización del segmento seleccionado</h3>
-        <video id="preview" class="video-js img-responsive" controls preload="auto" style="margin: 1em;"
+        <video id="preview" class="video-js" controls preload="auto" style="margin: 1em;"
           poster="{{poster}}" data-setup="{}">
             <source src="{{ src }}" type='video/mp4'>
             <source src="{{ src }}" type='video/webm'>

@@ -52,8 +52,9 @@ $(document).ready( function ( ) {
             $('#texto').val('');
             swal("Se ha comenzado con el proceso del video", "Cuando termine estará disponible en la lista de imágenes creadas", "success")
         })
-        .fail(function() {
-            console.log("error");
+        .fail(function( event, jqxhr, settings ) {
+            
+            sweetAlert('Se produjo un error', event.responseText, 'error');
         })
         .always(function() {
             console.log("complete");

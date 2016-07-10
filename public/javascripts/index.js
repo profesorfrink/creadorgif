@@ -17,12 +17,12 @@ $(document).ready( function () {
 
     Dropzone.options.uploader = {
             paramName: "file", // El nombre que se usará como parametro para transferir el archivo
-            maxFilesize: 20, // MB
+            maxFilesize: 10, // MB
             maxFiles: 1, // cantidad máxima de imagenes a subir
             addRemoveLinks: true,
             acceptedFiles: 'video/mp4, video/webm, video/x-matroska',
             dictRemoveFile: "Borrar",
-            dictDefaultMessage: "Arrastre un video aquí o haga click para seleccionar",
+            dictDefaultMessage: "Arrastre un video aquí o haga click para seleccionar (Tamaño máximo 10MB)",
             sending: function(file, xhr, formData){
               formData.append('aa', 'aaaa');
             },
@@ -76,7 +76,7 @@ $(document).ready( function () {
                 var render = templateVideo( {
                     filename: responseText.filename,
                     metadata: metadata,
-                    snapshot: responseText.filename + '.png',
+                    snapshot: responseText.screenshot,
                     src: responseText.filename
                 });
                 $('#contenedorVideo').html(render);
@@ -126,7 +126,7 @@ $(document).ready( function () {
 
                 var datos = {
                     filename:  idVideo,
-                    snapshot: idVideo + '.png',
+                    snapshot: $video.attr('poster').replace(/^.*[\\\/]/, ''),
                     src: idVideo + t
                 };
 
@@ -162,8 +162,8 @@ $(document).ready( function () {
                 $('#contenedorPreview').html('');
                 swal("Se ha comenzado con el proceso del video", "Cuando termine estará disponible en la lista de imágenes creadas", "success")
             })
-            .fail(function() {
-                console.log("error");
+            .fail(function( event, jqxhr, settings ) {
+                sweetAlert('Se produjo un error', event.responseText, 'error');
             })
             .always(function() {
                 console.log("complete");
