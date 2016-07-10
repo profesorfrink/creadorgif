@@ -10,7 +10,7 @@ var fs = require('fs');
 var gifify = require('gifify');
 var nedb = require('nedb');
 var kue = require('kue');
-
+var uuid = require('uuid');
 var jobs = kue.createQueue(); 
 var session = require('express-session');
 
@@ -103,7 +103,7 @@ router.post('/uploads', upload.single('file'), function ( req, res, next ) {
 router.post('/generar', function ( req, res, next ) {
     var datos = req.body;
     var input = destino + '/' + datos.filename;
-    var output = destinoGifs + '/' + datos.filename + '.gif';
+    var output = destinoGifs + '/' + uuid.v4() + '.gif';
     
 
     var options = {
