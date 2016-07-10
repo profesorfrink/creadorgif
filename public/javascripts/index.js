@@ -8,8 +8,9 @@ $(document).ready( function () {
     var templateImage = Handlebars.compile( $('#tplImagen').html() );
     var $video;
     var $galeria = $('#galeria');
+    var $botonCrear = $('.js-crear-gif');
 
-    
+        
 
     $galeria.unitegallery();
     
@@ -19,7 +20,7 @@ $(document).ready( function () {
             maxFilesize: 20, // MB
             maxFiles: 1, // cantidad máxima de imagenes a subir
             addRemoveLinks: true,
-            acceptedFiles: 'video/mp4',
+            acceptedFiles: 'video/mp4, video/webm, video/x-matroska',
             dictRemoveFile: "Borrar",
             dictDefaultMessage: "Arrastre un video aquí o haga click para seleccionar",
             sending: function(file, xhr, formData){
@@ -59,16 +60,16 @@ $(document).ready( function () {
                   //alert("Success.");
                   var $details = $('.dz-details');
                              
-                  $preview = $(file.previewElement);
+                  //$preview = $(file.previewElement);
                   // $preview.append("<a href='#' class='btn btn-default btn-block js-datos-imagen'>Datos imagen</a>");
-                  $preview.append("<input type='hidden' class='hdnId' value='" + responseText.filename +".jpg' />");
+                  //$preview.append("<input type='hidden' class='hdnId' value='" + responseText.filename +".jpg' />");
                   var video = {
                     nombreCliente: file.name,
                     nombreServidor: responseText.filename,
                     descripcion: ''
                   };
                   var metadata = JSON.stringify(responseText.metadata);
-                  $preview.append(  "<a class='btn btn-success btn-block js-seleccionar'  data-video='"+ responseText.filename + "' data-metadata='" + metadata +" '>Seleccionar</a> " );
+                  //$preview.append(  "<a class='btn btn-success btn-block js-seleccionar'  data-video='"+ responseText.filename + "' data-metadata='" + metadata +" '>Seleccionar</a> " );
 
 
                 
@@ -84,7 +85,7 @@ $(document).ready( function () {
                 
                 var idRange = 'range-' + responseText.filename;
                 var connectSlider = document.getElementById(idRange);
-                var fin = Math.floor(responseText.metadata.duration);
+                var fin = Math.ceil(responseText.metadata.duration);
                 noUiSlider.create(connectSlider, {
                     start: [0, fin],
                     connect: false,
@@ -96,7 +97,7 @@ $(document).ready( function () {
                 });
 
                 connectSlider.noUiSlider.on('update', onUpdateRange);
-                              
+                $botonCrear.removeClass('disabled');
                 });
 
             // Using a closure.
@@ -132,68 +133,15 @@ $(document).ready( function () {
                 var render = templateVideoPreview(datos);
                 $('#contenedorPreview').html( render );
 
-                /*
-                var idx = src.indexOf('#');
-
-                if ( idx > -1 ) {
-                    src = src.replace( src.substring( idx, src.length -1), t );
-                } else {
-                    src = src + t;
-                }
-                $video.find('source').attr('src', src);
-
-                playVideoTeaserFrom( desde, hasta, $video.attr('id'));
-                */
-                // Pick left for the first handle, right for the second.
-                //connectBar.style[handle ? 'right' : 'left'] = offset + '%';
-          };
-
-          function playVideoTeaserFrom (startTime, endTime, videoId) {
-                 var videoplayer = document.getElementById(videoId);  //get your videoplayer
-
-                 videoplayer.currentTime = startTime; //not sure if player seeks to seconds or milliseconds
-                 videoplayer.play();
-
-                 //call function to stop player after given intervall
-                 var stopVideoAfter = (endTime - startTime) * 1000;  //* 1000, because Timer is in ms
-                 setTimeout(function(){
-                     videoplayer.pause();
-                 }, stopVideoAfter);
-
-            }
-
-          $('form').on( 'click', '.js-seleccionar', function ( e ) {
-                e.preventDefault();
-                var datosVideo = $(e.currentTarget).data('video');
-                var metadata = JSON.parse($(e.currentTarget).data('metadata'));
-                var render = templateVideo( {
-                    filename: datosVideo,
-                    metadata: metadata,
-                    snapshot: datosVideo + '.png',
-                    src: datosVideo
-                });
-                $('#contenedorVideo').html(render);
-
-                $video = $(render);
                 
-                var idRange = 'range-' + datosVideo;
-                var connectSlider = document.getElementById(idRange);
-                var fin = Math.floor(metadata.duration);
-                noUiSlider.create(connectSlider, {
-                    start: [0, fin],
-                    connect: false,
-                    step: 1,
-                    range: {
-                        'min': 0,
-                        'max': fin
-                    }
-                });
-
-                connectSlider.noUiSlider.on('update', onUpdateRange);
-          });
+          };
 
         $('body').on( 'click', '.js-crear-gif', function ( e ) {
             e.preventDefault();
+            var $target = $(e.currentTarget);
+
+            if ( $target.hasClass('disabled') ) return false;
+            
             var datos = {
                 desde : parseInt( $('#desde').text( ) ),
                 hasta : parseInt( $('#hasta').text() ),
@@ -208,6 +156,7 @@ $(document).ready( function () {
                 data: datos
             })
             .done(function() {
+                $botonCrear.addClass('disabled');
                 Dropzone.forElement("#uploader").removeAllFiles(true);
                 $('#contenedorVideo').html('');
                 $('#contenedorPreview').html('');

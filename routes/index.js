@@ -91,7 +91,7 @@ router.post('/uploads', upload.single('file'), function ( req, res, next ) {
                     } else {
                         res.status(200).send({
                             filename: videoGuardado.nombre,
-                            metadata: respuestas[0].streams[0]
+                            metadata: respuestas[0].format
                         });
                     }
                 });   

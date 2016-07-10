@@ -11,6 +11,8 @@ block content
                     video.img-responsive(id="#{video._id}", poster="/images/#{video.screenshot}", class="video-js", controls preload="auto")
                         source(src="/videos/#{video.nombre}", type='video/mp4')
 
-                td: a(href="/desdevideo?idVideo=#{video._id}") Crear gif desde este video
+                td: a(href="/videos/desde/#{video._id}") Crear gif desde este video
+    .text-center.center-block
+        +paginador(pagina, totalPaginas, totalRegistros, 'videos')
 block js
     script(src="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.10.7/video.min.js")

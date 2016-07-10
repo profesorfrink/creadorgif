@@ -1,0 +1,16 @@
+mixin paginador(pagina, totalPaginas, totalRegistros, basePath)
+    nav
+        ul.pager
+            
+            if pagina != 1
+                - var pagAnterior = parseInt(pagina) - 1;
+                li.previous: <a href="/#{basePath}?pagina=#{pagAnterior}"><span aria-hidden="true">&larr;</span> Anteriores</a>
+            else 
+                li.previous.disabled: <a href="#"><span aria-hidden="true">&larr;</span> Anteriores</a>
+            li: span Mostrando página #{pagina} de #{totalPaginas}, total de registros #{totalRegistros}
+            
+            if pagina < totalPaginas
+                -var pagSiguiente = parseInt(pagina) + 1;
+                li.next: <a href="/#{basePath}?pagina=#{pagSiguiente}"><span aria-hidden="true">&rarr;</span> Siguientes</a>
+            else 
+                li.next.disabled: <a href="#"><span aria-hidden="true">&rarr;</span> Siguientes</a>

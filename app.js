@@ -9,6 +9,7 @@ var session = require('express-session')
 
 var routes = require('./routes/index');
 var videos = require('./routes/videos');
+var imagenes = require('./routes/imagenes');
 
 var app = express();
 
@@ -45,6 +46,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/videos', videos);
+app.use('/imagenes', imagenes);
 
 io.on('connection', function(socket){
   var socketId = socket.id;

@@ -1,0 +1,13 @@
+extends layout
+block js
+
+block content
+    .col-xs-12.col-sm-6
+        h2 Imagen generada
+        img.img-responsive(src="/gifs/#{imagen.nombre}")
+     .col-xs-12.col-sm-6
+        h2 Video Original
+        video.img-responsive(id="#{imagen._id}", class="video-js", controls preload="auto")
+            source(src="#{imagen.pathVideo}", type='video/mp4')
+            source(src="#{imagen.pathVideo}", type='video/webm')
+            source(src="#{imagen.pathVideo}", type='video/x-matroska')

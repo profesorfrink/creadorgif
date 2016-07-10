@@ -1,13 +1,42 @@
 extends layout
-
+block css
+    link(rel="stylesheet", href="https://cdn.jsdelivr.net/jquery.nouislider/8.5.0/nouislider.min.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.10.7/video-js.min.css")
 block content
     .col-xs-12.col-md-6
-        video.img-responsive(id="#{video._id}", poster="/images/#{video.screenshot}", class="video-js", controls preload="auto")
-            source(src="/videos/#{video.nombre}", type='video/mp4')
-            p.vjs-no-js To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+        h3 Video seleccionado
+        .text-center.center-block()
+            video.img-responsive.js-video-principal(id="#{video.nombre}", poster="/images/#{video.screenshot}", class="video-js", controls preload="auto")
+                source(src="/videos/#{video.nombre}", type='video/mp4')
+                source(src="/videos/#{video.nombre}", type='video/webm')
+                p.vjs-no-js To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+
         .col-xs-12
-            div#range-#{video.filename}
-                div(style="padding: 1em;")
-                    span#desde(style="float: left;")
-                    span#hasta.pull-right
-            input(class="form-control", id="texto", placeholder="Ingrese el texto aquí")
+            div#range(style="margin: 1em;")
+                div
+                    span#desde(style="float: left; margin-top: 2em;") 0
+                    span#hasta.pull-right(style="margin-top: 2em;") #{duracion}
+            div(style="padding-top: 2em;")
+                input(class="form-control", id="texto", placeholder="Ingrese el texto aquí")
+        .text-center.center-block()
+            button.btn.btn-primary.js-generar(type="button", style="margin: 2em;") Generar imagen
+    .col-xs-12.col-md-6
+        
+        #contenedorPreview
+
+block js
+    script(src="https://cdn.jsdelivr.net/jquery.nouislider/8.5.0/nouislider.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.10.7/video.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js")
+    script(src="/javascripts/desdevideo.js")
+    script(type="x-handlebars")#tplVideoPreview.
+        <h3>Previsualización del segmento seleccionado</h3>
+        <video id="preview" class="video-js img-responsive" controls preload="auto" style="margin: 1em;"
+          poster="{{poster}}" data-setup="{}">
+            <source src="{{ src }}" type='video/mp4'>
+            <source src="{{ src }}" type='video/webm'>
+            <p class="vjs-no-js">
+              To view this video please enable JavaScript, and consider upgrading to a web browser that
+              <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+            </p>
+          </video>

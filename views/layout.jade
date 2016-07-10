@@ -1,14 +1,30 @@
+include mixins
 doctype html
 html
   head
-    title= title
+    title Generador de gifs animados
     link(href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css", rel="stylesheet", integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7", crossorigin="anonymous")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css")
     block css
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
     .container
-        block content
+        navbar.navbar.navbar-default
+            .container
+                .navbar-header
+                    button.navbar-toggle.collapsed(type="button",  data-toggle="collapse", data-target="#col1", aria-expanded="false")
+                        span.sr-only Toggle navigation
+                        span.icon-bar
+                        span.icon-bar
+                        span.icon-bar
+                    a.navbar-brand(href="/") Generador de imágenes
+                .collapse.navbar-collapse#col1
+                    ul.nav.navbar-nav
+                        li: a(href="/videos") Videos
+                        li: a(href="/imagenes") Imagenes
+
+        .container
+            block content
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js")
     script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js", integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS", crossorigin="anonymous")
