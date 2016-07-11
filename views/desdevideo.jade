@@ -2,6 +2,7 @@ extends layout
 block css
     link(rel="stylesheet", href="https://cdn.jsdelivr.net/jquery.nouislider/8.5.0/nouislider.min.css")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.10.7/video-js.min.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/jQRangeSlider/5.7.2/css/iThing.min.css")
 block content
     .col-xs-12.col-md-6
         h3 Video seleccionado
@@ -12,6 +13,7 @@ block content
                 p.vjs-no-js To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
 
         .col-xs-12
+            #rangeSlider(data-desde="0", data-hasta="#{duracion}")
             div#range(style="margin: 1em;")
                 div
                     span#desde(style="float: left; margin-top: 2em;") 0
@@ -22,12 +24,21 @@ block content
             button.btn.btn-primary.js-generar(type="button", style="margin: 2em;") Generar imagen
     .col-xs-12.col-md-6
             #contenedorPreview
+            +formSubtitulos
+            #contenedorSubtitulos
 
 block js
+    
     script(src="https://cdn.jsdelivr.net/jquery.nouislider/8.5.0/nouislider.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.10.7/video.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.0/jquery.mask.min.js")
+    script(src="http://code.jquery.com/ui/1.10.3/jquery-ui.min.js")
+    script(src="/javascripts/jQAllRangeSliders-min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js")
     script(src="/javascripts/desdevideo.js")
+    +tplTextoSubtitulos
+    +tplTablaSubtitulos
     script(type="x-handlebars")#tplVideoPreview.
         <h3>Previsualización del segmento seleccionado</h3>
         <video id="preview" class="video-js" controls preload="auto" style="margin: 1em;"

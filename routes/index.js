@@ -117,15 +117,24 @@ router.post('/generar',  validar.checkDatos, function ( req, res, next ) {
     var datos = req.body;
     var input = destino + '/' + datos.filename;
     var output = destinoGifs + '/' + uuid.v4() + '.gif';
-    
+    var nombreSubtitulo;
 
     var options = {
       resize: '320:-1',
-      from: datos.desde,
-      to: datos.hasta,
+      from: Math.floor( parseInt(datos.desde) ),
+      to: Math.ceil( parseInt(datos.hasta) + 1),
       text: datos.texto,
       colors: 128
     };
+
+    if ( datos.subtitulos ) {
+        nombreSubtitulo = uuid.v4();
+        var pathSubtitulos = path.join( __dirname, '../public/subtitulos/' + nombreSubtitulo + '.ass' );
+        
+        var file = fs.writeFileSync( pathSubtitulos, datos.subtitulos);
+        delete options.text;
+        options.subtitles = pathSubtitulos;
+    }
 
     var jobData = {
         input: input,

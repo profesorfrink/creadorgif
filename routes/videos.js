@@ -6,6 +6,8 @@ var path = require('path');
 var nedb = require('nedb');
 const TAM_PAGINA = 10;
 var async = require('async');
+var moment = require('moment');
+
 
 var dbVideos = new nedb({
     filename: path.join( __dirname, '../db/videos.db'), 
@@ -47,10 +49,12 @@ router.get('/desde/:id', function ( req, res, next ) {
     if ( err ) {
       return next (err);
     } else {
-      var duracion = Math.floor( video.metadata.format.duration );
+      var duracion = Math.ceil( video.metadata.format.duration );
+      var hasta = moment( new Date ).startOf('day').add( video.metadata.format.duration, 'seconds'  ).format('H:mm:ss.SSS');
       res.render('desdevideo', {
         video: video,
-        duracion: duracion
+        duracion: video.metadata.format.duration,
+        hasta: hasta
       });
     }
   });
