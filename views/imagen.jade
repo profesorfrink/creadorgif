@@ -1,13 +1,38 @@
 extends layout
-block js
 
 block content
     .col-xs-12.col-sm-6
         h2 Imagen generada
-        img.img-responsive(src="/gifs/#{imagen.nombre}")
+        img.img-responsive.js-imagen-principal(src="/gifs/#{imagen.nombre}")
+        a.btn.btn-primary.js-enviar-giphy.hidden(href="#") Enviar a giphy.com
      .col-xs-12.col-sm-6
         h2 Video Original
-        video.img-responsive(id="#{imagen._id}", class="video-js", controls preload="auto")
-            source(src="#{imagen.pathVideo}", type='video/mp4')
-            source(src="#{imagen.pathVideo}", type='video/webm')
-            source(src="#{imagen.pathVideo}", type='video/x-matroska')
+        video.img-responsive(id="#{imagen.idVideo}", class="video-js", controls preload="auto")
+            source(src="/videos/#{imagen.nombreVideo}", type='video/mp4')
+            source(src="/videos/#{imagen.nombreVideo}", type='video/webm')
+            source(src="/videos/#{imagen.nombreVideo}", type='video/x-matroska')
+        a.btn.btn-primary(href="/videos/desde/#{imagen.idVideo}") Crear un gif desde este video
+
+block js
+    script.
+        $('.js-enviar-giphy').click( function (e) {
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: 'http://upload.giphy.com/v1/gifs',
+                data: {
+                    api_key: 'dc6zaTOxFJmzC',
+                    source_image_url: window.location.origin + $('.js-imagen-principal').attr('src')
+                },
+                success: function (respuesta) {
+                    swal({   
+                        title: "Éxito",   
+                        text: "<p>Su imagen se ha subido a giphy.</p><a href='http://giphy.com/gifs/"+ respuesta.data.id + "' target='_blank'>Ver Imagen</a>",   
+                        html: true
+                    });
+                },
+                error: function ( error ) {
+
+                }
+            });  
+        })

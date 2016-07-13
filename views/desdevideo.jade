@@ -2,30 +2,50 @@ extends layout
 block css
     link(rel="stylesheet", href="https://cdn.jsdelivr.net/jquery.nouislider/8.5.0/nouislider.min.css")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.10.7/video-js.min.css")
-    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/jQRangeSlider/5.7.2/css/iThing.min.css")
+    //- link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/jQRangeSlider/5.7.2/css/iThing.min.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/jQRangeSlider/5.7.2/css/classic.min.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.2.0/introjs.min.css")
 block content
+    .text-center.center-block
+        a.btn.btn-success.js-ayuda(href="#") Ayuda
     .col-xs-12.col-md-6
         h3 Video seleccionado
-        .text-center.center-block()
-            video.img-responsive.js-video-principal(id="#{video.nombre}", poster="/images/#{video.screenshot}", class="video-js", controls preload="auto")
+        .text-center.center-block
+            video.js-video-principal(id="#{video._id}", poster="/images/#{video.screenshot}", class="video-js", style="width: 100%" controls preload="auto")
                 source(src="/videos/#{video.nombre}", type='video/mp4')
                 source(src="/videos/#{video.nombre}", type='video/webm')
                 p.vjs-no-js To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+        div(style="padding: 2em;")
+            p.text-center
+                span#tiempoActual.label.label-default 0:00:00.000
+            p.text-center
+                div(class="btn-group" role="group" , style="margin: 1em;")
+                    button.btn.btn-info.btn-xs.js-copiar-desde Establecer en subtítulo desde
+                    button.btn.btn-success.btn-xs.js-copiar-hasta Establecer en subtítulo hasta
+                div(class="btn-group" role="group", style="margin: 1em;")
+                    button.btn.btn-info.btn-xs.js-fragmento-desde Establecer en fragmento desde
+                    button.btn.btn-success.btn-xs.js-fragmento-hasta Establecer en fragmento hasta
+
 
         .col-xs-12
+            h3(data-intro='Si quiere seleccionar solo un fragmento de video, arrastre los tiempos de inicio y fin', data-step="1") Seleccionar un fragmento del video
             #rangeSlider(data-desde="0", data-hasta="#{duracion}")
+            input(type="hidden")#hdnDuracion
+
+            button.btn.btn-primary.js-crear-clip.btn-block(type="button", style="margin: 1em;", data-intro='Puede crear un nuevo video con el segmento seleccionado, esto se recomienda cuando queremos añadir súbtitulos', data-step="2") Crear nuevo video con el fragmento seleccionado
             div#range(style="margin: 1em;")
-                div
+                div.hidden
                     span#desde(style="float: left; margin-top: 2em;") 0
                     span#hasta.pull-right(style="margin-top: 2em;") #{duracion}
-            div(style="padding-top: 2em;")
-                input(class="form-control", id="texto", placeholder="Ingrese el texto aquí")
         .text-center.center-block()
-            button.btn.btn-primary.js-generar(type="button", style="margin: 2em;") Generar imagen
-    .col-xs-12.col-md-6
-            #contenedorPreview
-            +formSubtitulos
+            button.btn.btn-primary.js-generar(type="button", style="margin: 2em;", data-intro='Cuando tengamos todo listo hacemos click aquí y daremos comienzo a la creación del gif animado', data-step="5") Generar imagen
+    .col-xs-12.col-md-6#zonaSubtitulos
+
+            #contenedorPreview(data-intro='Aqui mostraremos solo el fragmento seleccionado', data-step="3")
+            div(data-step="4", data-intro='Aqui crearemos los súbtitulos, se pueden agregar varias líneas y modificar los colores, si no tiene seleccionado todo el vídeo, le recomendamos crear un clip nuevo con los tiempos seleccionados, y luego hacer los súbtitulos desde ese nuevo video. Tenga en cuenta que los subtítulos son relativos al tiempo del fragmento seleccionado, por lo cual, si nuestro fragmento comienza en el segundo 2 del video, el mismo corresponde al segundo 0 del fragmento')
+                +formSubtitulos
             #contenedorSubtitulos
+            input(type="hidden")#hdnSubtitulosSrt
 
 block js
     
@@ -36,17 +56,31 @@ block js
     script(src="http://code.jquery.com/ui/1.10.3/jquery-ui.min.js")
     script(src="/javascripts/jQAllRangeSliders-min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.2.0/intro.js")
     script(src="/javascripts/desdevideo.js")
+
     +tplTextoSubtitulos
     +tplTablaSubtitulos
+    +tplSubtitulosSrt
     script(type="x-handlebars")#tplVideoPreview.
         <h3>Previsualización del segmento seleccionado</h3>
-        <video id="preview" class="video-js" controls preload="auto" style="margin: 1em;"
-          poster="{{poster}}" data-setup="{}">
+        <video id="preview" preload="auto" poster="{{poster}}" data-setup="{}">
             <source src="{{ src }}" type='video/mp4'>
             <source src="{{ src }}" type='video/webm'>
             <p class="vjs-no-js">
               To view this video please enable JavaScript, and consider upgrading to a web browser that
               <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
             </p>
-          </video>
+        </video>
+
+        <div class="col-xs-12">
+            <p class="text-center">
+                <span class="label label-default" id="tiempoPreview">0:00:00.000</span>
+            </p>
+        </div>
+        <p class="text-center">
+            <div role="group" class="btn-group text-center">
+                <button class="btn btn-primary btn-xs js-reproducir-preview">Reproducir</button>
+                <button class="btn btn-danger btn-xs js-pausar-preview">Pausar</button>
+            </div>
+        </p>

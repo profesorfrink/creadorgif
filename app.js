@@ -4,8 +4,11 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var kue = require('kue');
 
-var session = require('express-session')
+var session = require('express-session');
+
+var videoServices = require('./services/videos');
 
 var routes = require('./routes/index');
 var videos = require('./routes/videos');
@@ -20,6 +23,10 @@ var dbUsers = new nedb({
     autoload: true
 });
 
+var dbVideos = new nedb({
+    filename: path.join( __dirname, 'db/videos.db'), 
+});
+
 const SECRETSESSION =  'njasodjoia dñohaopdihpsnmn jkhdaf ipuòi83748913247/*';
 const SECRETCOOKIE = 'pokdadjoi fv  jklalda123+-%&/';
 const COOKIEKEY = 'sessId';
@@ -31,7 +38,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -47,6 +54,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/videos', videos);
 app.use('/imagenes', imagenes);
+
+kue.app.set('title', 'Jobs');
+var subApp = express();
+subApp.use('', kue.app)
+app.use('/adminkue', subApp);
 
 io.on('connection', function(socket){
   var socketId = socket.id;
@@ -98,6 +110,14 @@ app.on('imagenNueva', function ( imagen ) {
   dbUsers.findOne( { ip: imagen.ip }).exec( function (err, user ) {
       if ( user ) io.to(user.socketId).emit( 'imagenProcesada', imagen );
   });
+});
+
+app.on('clipCreado', function ( pathVideo, ipUsuario ) {
+    videoServices.procesarVideo( pathVideo, function ( err, videoGuardado ) {
+      dbUsers.findOne( { ip: ipUsuario }).exec( function ( err, user ) {
+          if ( user ) io.to( user.socketId).emit( 'clipCreado', videoGuardado );
+      });
+    });
 });
 
 http.listen(3000, function(){

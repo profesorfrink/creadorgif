@@ -20,5 +20,6 @@ coverage/
 public/images/
 public/gifs/
 public/videos/
+public/subtitulos/
 exports/
 db/*

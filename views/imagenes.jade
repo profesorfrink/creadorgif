@@ -7,7 +7,7 @@ block content
     div#galeria
         each imagen in imagenes
             a(href="/imagenes/#{imagen._id}")
-                img(alt="<a href='/imagenes/#{imagen._id}'>Link</a>", src="/gifs/#{imagen.nombre}", data-image="/gifs/#{imagen.nombre}", data-description="<a href='/gifs/#{imagen._id}'>Link</a> ", style="display:none")
+                img(alt="<a href='/imagenes/detalles/#{imagen._id}'>Ver más datos</a>", src="/gifs/#{imagen.nombre}", data-image="/gifs/#{imagen.nombre}", data-description="<a href='/gifs/#{imagen._id}'>Link</a> ", style="display:none")
     .text-center.center-block
         +paginador(pagina, totalPaginas, totalRegistros, 'imagenes')
 block js

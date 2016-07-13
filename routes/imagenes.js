@@ -10,6 +10,9 @@ var async = require('async');
 var db = new nedb({
     filename: path.join( __dirname, '../db/imagenes.db'), 
 });
+var dbVideos = new nedb({
+    filename: path.join( __dirname, '../db/videos.db'), 
+});
 
 router.get('/', function(req, res, next) {
      db.loadDatabase( function (err) { 
@@ -39,18 +42,23 @@ router.get('/', function(req, res, next) {
     });
 });
 
-router.get('/:id', function ( req, res, next ) {
-    db.loadDatabase( function (err) { 
-        db.findOne( { _id: req.params.id }).exec( function (err, imagen ) {
-            if ( err ) {
-                return next (err);
-            } else {
-                imagen.pathVideo = '/videos/' + path.basename(imagen.video);
-                res.render('imagen', {
-                    imagen: imagen
-                });
-            }
+router.get('/detalles/:id', function ( req, res, next ) {
+    
+    dbVideos.loadDatabase();
+    db.loadDatabase();
+   
+    var datos = {};
+    var idImagen = req.params.id;
+    db.findOne( { _id: req.params.id  }).exec( function ( err, imagen ) {
+        if ( err ) {
+            return next(err);
+        } 
+        imagen.nombreVideo = path.basename( imagen.video );
+        res.render('imagen', {
+            imagen: imagen
+    
         });
+        
     });
 });
 

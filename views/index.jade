@@ -6,6 +6,8 @@ block css
     link(rel="stylesheet", href="https://cdn.jsdelivr.net/jquery.nouislider/8.5.0/nouislider.min.css")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/unitegallery/1.7.28/css/unite-gallery.min.css")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/unitegallery/1.7.28/themes/default/ug-theme-default.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/jQRangeSlider/5.7.2/css/iThing.min.css")
+    link(rel="stylesheet", href="/stylesheets/jqGifPreview.min.css")
 block content
   h1 Generador de gifs animados
   .col-xs-12.col-sm-5.col-md-6
@@ -22,10 +24,14 @@ block content
         button(class="btn btn-primary btn-block js-crear-gif disabled") Crear gif
     .col-xs-12.col-md-7.col-lg-8
         h2 Últimas imágenes generadas
-        div#galeria
-            each imagen in imagenes
-                a
-                    img(alt="Peppers", src="/gifs/#{imagen.nombre}", data-image="/gifs/#{imagen.nombre}", data-description="Those are peppers", style="display:none")
+        //- div#galeria
+        //-     each imagen in imagenes
+        //-         a
+        //-           img(alt="<a href='/imagenes/#{imagen._id}'>Link</a>", src="/gifs/#{imagen.nombre}", data-image="/gifs/#{imagen.nombre}", data-description="<a href='/gifs/#{imagen._id}'>Link</a> ", style="display:none")
+        div.row
+          each imagen in imagenes
+            if imagen.screenshot
+              img(class="animado" src="/images/#{imagen.screenshot}" data-gif="/gifs/#{imagen.nombre}")
 
 block js
     script(src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.js")
@@ -35,14 +41,17 @@ block js
     script(src="https://cdn.jsdelivr.net/jquery.nouislider/8.5.0/nouislider.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/unitegallery/1.7.28/js/unitegallery.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/unitegallery/1.7.28/themes/tiles/ug-theme-tiles.min.js")
-    
+    script(src="http://code.jquery.com/ui/1.10.3/jquery-ui.min.js")
+    script(src="/javascripts/jQAllRangeSliders-min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js")
+    script(src="/javascripts/jqGifPreview.min.js")
     script(src="/javascripts/index.js")
     script(type="x-handlebars")#tplImagen.
         <a>
             <img alt="Peppers" src="/gifs/{{nombre}}", data-image="/gifs/{{nombre}}", data-description="Those are peppers", style="display:none" />
         </a>
     script(type="x-handlebars")#tplVideo.
-        <video id="{{filename}}" class="video-js" controls preload="auto" style="margin: 1em;"
+        <video id="{{ id }}" class="video-js" controls preload="auto" data-nombre="{{nombre}}" style="margin: 1em;"
           poster="/images/{{ snapshot }}" data-setup="{}">
             <source src="/videos/{{ src }}" type='video/mp4'>
             <source src="/videos/{{ src }}" type='video/webm'>
@@ -58,17 +67,32 @@ block js
                 <span id="hasta" class="pull-right"></span>
              </div>
           </div>
-          <input class="form-control" id="texto" placeholder="Ingrese el texto aquí" />
+          <div class="form-group">
+            <label>Subtítulo</label>
+            <input class="form-control" id="texto" placeholder="Ingrese el texto aquí" />
+          </div>
+          <div style="margin: 1em;">
+            <a class="btn btn-link" href="/videos/desde/{{id}}" title="permite hacer clips a partir del video subido y generar subtítulos avanzados">Editor avanzado</a>
+          </div>
+          
+          <div id="rangeSlider" />
     script(type="x-handlebars")#tplVideoPreview.
         <h3>Previsualización del segmento seleccionado</h3>
-        <video id="{{filename}}" class="video-js" controls preload="auto" style="margin: 1em;"
-          poster="/images/{{ snapshot }}" data-setup="{}">
-            <source src="/videos/{{ src }}" type='video/mp4'>
-            <source src="/videos/{{ src }}" type='video/webm'>
+        <video id="{{id}}-preview" preload="auto" style="margin: 1em;"
+          poster="{{ snapshot }}" data-setup="{}">
+            <source src="{{ src }}" type='video/mp4'>
+            <source src="{{ src }}" type='video/webm'>
             <p class="vjs-no-js">
               To view this video please enable JavaScript, and consider upgrading to a web browser that
               <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
             </p>
           </video>
+          <div class="text-center" style="padding-bottom:2em;">
+            Tiempo actual: <span id="tiempoActual" class="label label-default"></span>
+          </div>
+          <a href="" class="btn btn-primary js-reproducir-preview">Reproducir</a>
+          <a href="" class="btn btn-danger js-pausar-preview">Pausar</a>
+    +tplSubtitulosSrt
+
           
          

@@ -8,7 +8,7 @@ block content
             tr
                 td #{ video.nombre }
                 td.col-xs-6.col-lg-3
-                    video.img-responsive(id="#{video._id}", poster="/images/#{video.screenshot}", class="video-js", controls preload="auto")
+                    video.img-responsive(id="#{video._id}", poster="/images/#{video.screenshot}", class="video-js", controls )
                         source(src="/videos/#{video.nombre}", type='video/mp4')
 
                 td: a(href="/videos/desde/#{video._id}") Crear gif desde este video
