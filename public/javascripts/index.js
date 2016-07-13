@@ -1,6 +1,11 @@
 'use script';
 
-
+Handlebars.registerHelper('fechaSrt', function ( value ) {
+    return moment( value, 'H:mm:ss.SSS').format('HH:mm:ss,SSS');
+});
+Handlebars.registerHelper('colorSubtitulo', function ( value ) {
+    return value || 'yellow';
+});
 
 $(document).ready( function () {
     var templateVideo = Handlebars.compile( $('#tplVideo').html() );
@@ -66,6 +71,9 @@ $(document).ready( function () {
 
                     $video = $(render);
                     var max = parseFloat(responseText.metadata.duration);
+
+                    $('#desde').text(0);
+                    $('#hasta').text(max);
 
                     $('#rangeSlider').rangeSlider({ 
                         defaultValues: { 
@@ -141,15 +149,16 @@ $(document).ready( function () {
             var subtitulo = {
                 desde: moment( new Date ).startOf('day').add( $('#desde').text( ), 'seconds').format('H:mm:ss.SSS'),
                 hasta: moment( new Date ).startOf('day').add( $('#hasta').text( ), 'seconds').format('H:mm:ss.SSS'),
-                texto: $texto.val(),
+                texto: $('#texto').val(),
                 color: 'yellow'
             };
+            subtitulos.push( subtitulo );
             var textoSubtitulos = templateSubtitulos( { subtitulos: subtitulos });
-            
+           
             var datos = {
                 desde : parseInt( $('#desde').text( ) ),
                 hasta : parseInt( $('#hasta').text() ),
-                filename : $video.data('nombre'),
+                filename : $video.attr('id'),
                 texto: '',
                 subtitulos: textoSubtitulos,
                 idVideo: $video.attr('id')
