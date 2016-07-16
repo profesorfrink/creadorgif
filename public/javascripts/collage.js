@@ -226,7 +226,7 @@ $(document).ready( function () {
     function DownloadImage() {
        
         try {
-            canvasFabric.setActiveObject( canvasFabric.getObjects()[0]);
+            //canvasFabric.setActiveObject( canvasFabric.getObjects()[0]);
             var rawImageData = canvasF.toDataURL('image/jpeg', 0.76);
             rawImageData = rawImageData.replace('image/jpeg', 'image/octet-stream');
             var link = document.createElement('a');
