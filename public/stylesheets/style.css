@@ -7,3 +7,8 @@ body {
 a {
   color: #00B7FF;
 }
+@font-face {
+    font-family: Simpsons;
+    src: url(Simpsonfont.ttf) format('truetype');
+    font-weight: bold;
+}

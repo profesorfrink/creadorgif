@@ -1,0 +1,70 @@
+extends layout
+
+block css
+    link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Oswald:400,700", type='text/css')
+    link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Open+Sans:400,700", type='text/css')
+    link(rel="stylesheet", href="//cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.css")
+
+block content
+    .row.video
+        .col-xs-12.col-sm-12.col-md-5
+            span(style="font-family: Simpsons;") Video seleccionado
+            video.js-video-principal.img-responsive(id="#{video._id}", poster="/images/#{video.screenshot}" controls preload="none")
+                source(src="/videos/#{video.nombre}", type='video/mp4')
+                source(src="/videos/#{video.nombre}", type='video/webm')
+                p.vjs-no-js To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+            .row(style="margin-top:1em;").text-center
+                p.center-block
+                    button.btn.btn-info.btn-xs.js-snapshot Tomar captura para collage
+        .col-xs-12.col-sm-12.col-md-7    
+            .row(style="margin-top: 1em;")
+                #contenedorImagenes
+            
+                
+            .row.text-center(style="margin: 1em;")
+                button.btn.btn-success.btn-xs.js-generar-collage Generar collage
+           
+                canvas#canvas(width="320px", height="240px", style="display:block;").hidden
+            
+                
+            
+
+    .row
+        .col-xs-12.col-md-4
+            +paneltextocanvas
+            #contenedorListaObjetos       
+        .col-xs-12.col-md-8
+            
+            h Resultado collage
+            p.text-center.center-block
+                button.btn.btn-primary.js-guardar Guardar imagen
+                button.btn.btn-success(data-toggle="modal", data-target="#modalImagen") Subir imagen
+            canvas#canvasCollage.hidden(widht="640px", height="240px")
+            canvas#canvasFabric(style="width: 100%;")
+            img#imgResultado.hidden
+
+    .modal.fade#modalImagen
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    button(type="button", class="close", data-dismiss="modal", aria-label="Close"): span(aria-hidden="true") &times;
+                    h5 Subir una imagen
+                .modal-body
+                    .form-group
+                        label Desde un archivo
+                        form#uploader.dropzone(action="/uploadimagen", enctype="multipart/form-data", method="POST")
+                          .fallback
+                              input(name="file", type="file", multiple)
+                    .form-group
+                        label Desde una url
+                        input.form-control(type="text").js-url-imagen
+                        button.btn.btn-success.js-usar-imagen(type="button") Usar imagen
+
+
+block js
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.6.3/fabric.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js")
+    script(src="/javascripts/imagine.js")
+    +tablaObjetos
+    script(src="/javascripts/collage.js")

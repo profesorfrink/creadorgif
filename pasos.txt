@@ -1,0 +1,96 @@
+apt-get install npm
+npm install -g n
+n stable
+
+node --version
+Salida: v6.2.2
+
+apt-get install apt-build
+
+apt-get build-dep imagemagick
+
+//////
+
+apt-get update
+apt-get build-dep imagemagick
+
+apt-get install imagemagick
+
+convert --version
+Muestra: Delegates: bzlib cairo djvu fftw fontconfig freetype jbig jng jpeg lcms lqr ltdl lzma openexr pangocairo png rsvg tiff wmf x xml zlib
+
+apt-get build-dep ffmpeg
+apt-get install ffmpeg
+
+add-apt-repository ppa:dhor/myway
+apt-get update
+apt-get install graphicsmagick
+
+curl -OJL https://github.com/pornel/giflossy/releases/download/lossy%2F1.82.1/gifsicle-1.82.1-lossy.zip
+unzip gifsicle-1.82.1-lossy.zip -d gifsicle
+mv gifsicle/linux/gifsicle-debian6 /usr/local/bin/gifsicle
+
+apt-get install npm
+npm install -g n
+npm install -g gifify
+n stable // instala la versión estable de nodejs
+
+apt-get install -y redis-server
+npm install -g pm2
+
+useradd -mrU web
+
+mkdir /var/www
+chown web /var/www
+chgrp web /var/www
+
+cd /var/www
+su web
+git clone https://github.com/profesorfrink/creadorgif.git
+cd creadorgif
+npm install
+
+
+/*NGINX*/
+apt-get install nginx
+cd /etc/nginx/sites-available/
+
+server {
+    listen 80;
+
+    server_name localhost;
+
+    location / {
+        client_max_body_size 10M;
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    location /public {
+      root /var/www/creadorgif;
+      access_log off;
+      expires 24h;
+    }
+}
+
+// editamos el archivo /etc/nginx.conf
+/* Crear SWAP*/
+sudo fallocate -l 4G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+sudo nano /etc/fstab -> al final del archivo agregar la linea     /swapfile   none    swap    sw    0   0
+
+sudo sysctl vm.swappiness=10
+sudo nano /etc/sysctl.conf 
+            -> Agregamos al final 
+                vm.swappiness=10
+                vm.vfs_cache_pressure = 50
+
+
+
+

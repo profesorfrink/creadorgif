@@ -1,0 +1,24 @@
+extends layout
+block css
+    link(rel="stylesheet", href="//cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.css")
+block content
+    .col-xs-12.col-md-5
+        form#uploader.dropzone(action="/uploadimagen", enctype="multipart/form-data", method="POST")
+          .fallback
+              input(name="file", type="file", multiple)
+    .col-xs-12.col-md-7
+        +paneltextocanvas
+    .col-xs-12
+        canvas#canvas
+        .col-xs-12.col-sm-6
+            .panel
+                .panel-header
+                    h5 Cambiar de texto activo
+                .panel-body
+                    .form-group
+                        label Tamaño
+                        input.form-control(type="number").js-cambiar-tam
+block js
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.js")
+    script(src="/javascripts/imagine.js")
+    script(src="/javascripts/meme.js")

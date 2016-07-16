@@ -1,0 +1,60 @@
+apt-get update
+apt-get build-dep imagemagick ffmpeg // proceso largo
+apt-get install -y imagemagick ffmpeg redis-server
+
+add-apt-repository ppa:dhor/myway //pide confirmacion
+apt-get update
+apt-get install -y unzip graphicsmagick
+
+curl -OJL https://github.com/pornel/giflossy/releases/download/lossy%2F1.82.1/gifsicle-1.82.1-lossy.zip
+unzip gifsicle-1.82.1-lossy.zip -d gifsicle
+mv gifsicle/linux/gifsicle-debian6 /usr/local/bin/gifsicle
+
+npm install -g n gifify pm2
+
+n stable
+
+useradd -mrU web
+
+mkdir /var/www
+chown -R web /var/www
+chgrp -R web /var/www
+
+cd /var/www
+su web
+git clone https://github.com/profesorfrink/creadorgif.git
+cd creadorgif
+npm install
+
+/* RECOMENDADO **/
+
+apt-get install -y nginx
+cd /etc/nginx/sites-available/
+rm default
+nano default
+/**********/
+server {
+    listen 80;
+
+    server_name localhost;
+
+    location / {
+        client_max_body_size 10M;
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    location /public {
+      root /var/www/creadorgif;
+      access_log off;
+      expires 24h;
+    }
+}
+/*********/
+sudo service nginx restart
+
+/* Crear SWAP*/

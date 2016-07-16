@@ -21,5 +21,6 @@ public/images/
 public/gifs/
 public/videos/
 public/subtitulos/
+public/temp/
 exports/
 db/*

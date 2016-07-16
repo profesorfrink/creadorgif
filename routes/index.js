@@ -22,10 +22,14 @@ var db = new nedb({
     autoload: true
 });
 
+var memes = new nedb({
+    filename: path.join( __dirname, '../db/memes.db')
+});
 
 var destino = path.join( __dirname, '../public/videos');
 var destinoImagenes = path.join( __dirname, '../public/images');
 var destinoGifs = path.join( __dirname, '../public/gifs');
+var destinoTemp = path.join( __dirname, '../public/temp');
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -34,6 +38,25 @@ var storage = multer.diskStorage({
   filename: function (req, file, cb) {
     cb(null, +Date.now() + '.mp4') //Appending .jpg
   }
+});
+var storageImagenes = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, destinoTemp);
+  }
+});
+
+var uploadImage = multer({
+    dest: destinoImagenes,
+    storage: storageImagenes,
+    fileFilter: function (req, file, cb) {
+        
+        if ( 'image/jpeg, image/pjpeg, image/png'.indexOf(file.mimetype) > -1 ) {
+            cb(null, true);
+        } else {
+            cb (null, false );
+        }
+    }
+
 });
 var upload = multer({
     dest: destino,
@@ -49,6 +72,7 @@ var upload = multer({
 });
 /* GET home page. */
 router.get('/', function(req, res, next) {
+    db.loadDatabase();
     db.find({}).sort({ fecha: -1 }).limit(10).exec( function (err, imagenes ) {
         if ( err ) {
             return next( err );
@@ -61,6 +85,20 @@ router.get('/', function(req, res, next) {
   
 });
 
+router.post('/uploadimagen', uploadImage.single('file'), function ( req, res, next ) {
+    
+    gm(destinoTemp + '/' + req.file.filename)
+    .resize(1024, 768, '>')
+    .setFormat('jpg')
+    .quality(80)
+    .write( destinoImagenes +'/' + req.file.filename + '.jpg', function(err){
+        if ( err ) {
+            return next(err);
+        }
+        res.status(200).json(req.file);
+    });
+    
+});
 router.post('/uploads', upload.single('file'), function ( req, res, next ) {
     videoServices.procesarVideo ( req.file.path, function ( err, videoGuardado ) {
         if ( err ) {
@@ -73,8 +111,17 @@ router.post('/uploads', upload.single('file'), function ( req, res, next ) {
     
 });
 
+router.get('/crearmeme', function (req, res, next) {
+    res.render('meme');
+})
+
 router.post('/generar',  validar.checkDatos, function ( req, res, next ) {
     var datos = req.body;
+
+    // TODO SACAR HARCODEADAS
+    datos.colores = datos.colores || 128;
+    datos.fps = datos.fps || 10;
+    datos.compresion = datos.compresion || 40;
     
     var output = destinoGifs + '/' + uuid.v4() + '.gif';
     var nombreSubtitulo;
@@ -84,7 +131,9 @@ router.post('/generar',  validar.checkDatos, function ( req, res, next ) {
       from: parseFloat(datos.desde),
       to: parseFloat(datos.hasta),
       text: datos.texto,
-      colors: 128
+      colors: datos.colores,
+      fps: datos.fps,
+      compress: datos.compresion
     };
 
     if ( datos.subtitulos ) {

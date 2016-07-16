@@ -26,7 +26,6 @@ block content
                     button.btn.btn-info.btn-xs.js-fragmento-desde Establecer en fragmento desde
                     button.btn.btn-success.btn-xs.js-fragmento-hasta Establecer en fragmento hasta
 
-
         .col-xs-12
             h3(data-intro='Si quiere seleccionar solo un fragmento de video, arrastre los tiempos de inicio y fin', data-step="1") Seleccionar un fragmento del video
             #rangeSlider(data-desde="0", data-hasta="#{duracion}")
@@ -37,6 +36,20 @@ block content
                 div.hidden
                     span#desde(style="float: left; margin-top: 2em;") 0
                     span#hasta.pull-right(style="margin-top: 2em;") #{duracion}
+            .panel
+                .panel-header
+                    h3 Parámetros de calidad
+                .panel-body
+                    .form-group
+                        label Colores (máximo 255)
+                        input.form-control#cal-colores(type="number", value="128", mim="8", max="255", step="1")
+                    .form-group
+                        label Compresión (0 = no comprime, 100 = máximo)
+                        input.form-control#cal-compresion(type="number", value="40", mim="0", max="100", step="1")
+                    .form-group
+                        label Frames por segundo 
+                        input.form-control#cal-fps(type="number", value="10", mim="1", max="30", step="1")
+
         .text-center.center-block()
             button.btn.btn-primary.js-generar(type="button", style="margin: 2em;", data-intro='Cuando tengamos todo listo hacemos click aquí y daremos comienzo a la creación del gif animado', data-step="5") Generar imagen
     .col-xs-12.col-md-6#zonaSubtitulos
@@ -57,6 +70,7 @@ block js
     script(src="/javascripts/jQAllRangeSliders-min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.2.0/intro.js")
+    
     script(src="/javascripts/desdevideo.js")
 
     +tplTextoSubtitulos
@@ -64,7 +78,7 @@ block js
     +tplSubtitulosSrt
     script(type="x-handlebars")#tplVideoPreview.
         <h3>Previsualización del segmento seleccionado</h3>
-        <video id="preview" preload="auto" poster="{{poster}}" data-setup="{}">
+        <video id="preview" preload="auto" poster="{{poster}}" data-setup="{}" class="img-responsive">
             <source src="{{ src }}" type='video/mp4'>
             <source src="{{ src }}" type='video/webm'>
             <p class="vjs-no-js">

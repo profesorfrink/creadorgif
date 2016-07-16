@@ -11,7 +11,9 @@ block content
                     video.img-responsive(id="#{video._id}", poster="/images/#{video.screenshot}", class="video-js", controls )
                         source(src="/videos/#{video.nombre}", type='video/mp4')
 
-                td: a(href="/videos/desde/#{video._id}") Crear gif desde este video
+                td
+                    a.btn.btn-link(href="/videos/desde/#{video._id}") Crear gif desde este video
+                    a.btn.btn-link(href="/videos/collage/#{video._id}") Crear collage desde este video
     .text-center.center-block
         +paginador(pagina, totalPaginas, totalRegistros, 'videos')
 block js

@@ -33,6 +33,8 @@ $(document).ready( function ( ) {
 
     videoPrincipal.addEventListener( 'timeupdate', mostarTiempoVideo, false );
 
+   
+
     function mostarTiempoVideo() {
         var tiempo = moment( new Date ).startOf('day').add( videoPrincipal.currentTime, 'seconds').format('H:mm:ss.SSS');
         $spanTiempo.text(tiempo);
@@ -228,7 +230,10 @@ var onClickCrearClip = function ( e ) {
             filename : $video.attr('id'),
             texto: '',
             subtitulos: $hdnSubtitulosSrt.val(),
-            idVideo: $video.attr('id')
+            idVideo: $video.attr('id'),
+            colores: $('#cal-colores').val(),
+            compresion: $('#cal-compresion').val(),
+            fps: $('#cal-fps').val()
         };
 
         

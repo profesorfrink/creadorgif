@@ -80,6 +80,21 @@ router.post('/crearclip', function ( req, res, next ) {
   });
 
 });
+
+router.get('/collage/:id', function ( req, res, next ) {
+  dbVideos.loadDatabase();
+  dbVideos.findOne( { _id: req.params.id }).exec( function ( err, video ) {
+    if ( err ) {
+      return next (err);
+    } else {
+      //var duracion = Math.ceil( video.duracion );
+      
+      res.render('collage', {
+        video: video
+      });
+    }
+  });
+});
 router.get('/desde/:id', function ( req, res, next ) {
   dbVideos.loadDatabase();
   dbVideos.findOne( { _id: req.params.id }).exec( function ( err, video ) {

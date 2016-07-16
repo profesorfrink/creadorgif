@@ -62,7 +62,7 @@ mixin tplTablaSubtitulos
                     <tr>
                         <td><span class="tiempo-subtitulo label label-primary">{{desde}}</span></td>
                         <td><span class="tiempo-subtitulo label label-danger">{{hasta}}</span></td>
-                        <td><span class="">{{texto}}</span></td>
+                        <td><span class="" style="background-color: {{color}};">{{texto}}</span></td>
                         <td><button class="btn btn-danger btn-xs pull-right js-eliminar-subtitulo" data-index="{{@index}}"><i class="glyphicon glyphicon-remove"></i></button></td>
                     </tr>
                 {{/each}}
@@ -98,3 +98,87 @@ mixin formSubtitulos
             
             input(type="hidden", name="subtitulo").js-subtitulo
         .panel-footer
+mixin paneltextocanvas
+    .panel#panelTexto.hidden
+        .panel-body
+            .col-xs-6
+                .form-group
+                    label Texto
+                    textarea.form-control.js-texto(rows="3")
+            .col-xs-6
+                .form-group
+                    label Fuente
+                    select.form-control.js-font
+                        option(value="Oswald") Oswald
+                        option(value="Arial") Arial
+                        option(value="Times New Roman") Times New Roman
+                        option(value="Open Sans") Open Sans
+                        option(value="Simpsons") Simpsons
+            //- .col-xs-6
+            //-     .form-group
+            //-         label Tamaño
+            //-         input.form-control(type="number", value="24").js-size
+            .col-xs-6
+                .form-group
+                    label Color
+                    select.form-control.js-color
+                        option(value="yellow") Amarillo
+                        option(value="white") Blanco
+                        option(value="orange") Naranja
+                        option(value="pink") Rosado
+
+        .panel-footer
+            p.text-center.center-block
+                button.btn.btn-success.js-agregar-texto Agregar texto
+            p.label.label-default.col-xs-12 Una vez agregado el texto se puede arrastrar hacia la posición deseada
+            p.label.label-danger.col-xs-12 También se puede borrar con un click en la rudita del mouse
+mixin tablaObjetos
+     script(type="x-handlebars")#tplListaObjetos.
+        <table class="table table-stripped">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Valor</th>
+                    <th>Opacidad</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each objetos}}
+                    <tr>
+                    {{#if text }}
+
+                            <td><span class="tiempo-subtitulo label label-primary">Texto</span></td>
+                            <td><span class="tiempo-subtitulo label label-danger">{{text}}</span></td>
+                            <td>
+                                <input type="number" class="js-cambiar-opacidad" min="0" max="1" value="1" data-index="{{@index}}" data-idx="{{@index}}" step="0.05" />
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-primary btn-xs js-seleccionar-objeto" data-index="{{@index}}" title="Seleccionar"><i class="glyphicon glyphicon-ok"></i></button>
+                                    <button class="btn btn-danger btn-xs js-eliminar-objeto" data-index="{{@index}}" data-idx="{{@index}}" title="Eliminar"><i class="glyphicon glyphicon-remove"></i></button>                         
+                                </div>
+                            </td>
+                    {{/if}}        
+                    {{#if _element.src }}
+                            <td><span class="tiempo-subtitulo label label-primary">Imagen</span></td>
+                            <td><img src="{{_element.src}}" style="width: 32px; max-width: 32px;"></td>
+                            <td>
+                                <input type="number" class="js-cambiar-opacidad" min="0" max="1" value="1" data-index="{{@index}}" data-idx="{{@index}}" step="0.05" />
+                            <td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-primary btn-xs js-seleccionar-objeto" data-index="{{@index}}" title="Seleccionar"><i class="glyphicon glyphicon-ok"></i></button>
+                                    
+                                    <button class="btn btn-info btn-xs js-flip-x" data-index="{{@index}}" title="Flip horizontal"><i class="glyphicon glyphicon-menu-right"></i></button>
+                                    <button class="btn btn-warning btn-xs js-flip-y" data-index="{{@index}}" title="Flip Vertical"><i class="glyphicon glyphicon-menu-up"></i></button>
+                                    <button class="btn btn-danger btn-xs  js-eliminar-objeto" data-index="{{@index}}" data-idx="{{@index}}" title="Seleccionar"><i class="glyphicon glyphicon-remove"></i></button>                         
+                                </div>
+                                
+                            </td>
+                            
+                    {{/if}}
+                    </tr>   
+                {{/each}}
+            </tbody>
+        </table>
