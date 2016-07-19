@@ -154,7 +154,7 @@ $(document).ready( function () {
 
     var onClickGenerarCollage = function ( e ) {
         e.preventDefault();
-
+        videoPrincipal.pause();
         var imagenes = $contenedorImagenes.find('img');
         var contadorImagenes = imagenes.length;
         var filas = Math.ceil(contadorImagenes / 2);
@@ -163,10 +163,11 @@ $(document).ready( function () {
             imageWidth = imagenes[0].naturalWidth;
             imageHeight = imagenes[0].naturalHeight;
             
-            // if ( imageWidth > 480 ) {
-            //     imageWidth = 480;
-            //     imageHeight = parseInt(imageHeight * 480 / imageWidth)
-            // }
+            if ( imageWidth > 320 ) {
+                var originalWidth = parseInt(imageWidth);
+                imageWidth = 320;
+                imageHeight = parseInt(imageHeight * 320 / originalWidth);
+            }
 
             canvasCollage.width = imageWidth * 2;
             canvasCollage.height = imageHeight * filas;
@@ -186,19 +187,14 @@ $(document).ready( function () {
                 img.src = val.src;
 
                 img.addEventListener('load', function() {
-                    var imgCanvas = new imagine.Image(img, {
-                        left: left,
-                        top: top,
-                        width: imageWidth,
-                        height: imageHeight
-                    });
-                    canvasImagine.add(imgCanvas);
 
                     fabric.Image.fromURL( val.src, function(image) {
                         image.set({
                             left: left,
                             top: top,
                             angle: 0,
+                            width: imageWidth,
+                            height: imageHeight,
                             hasBorders: false,
                             hasControls: false,
                             hasRotatingPoint: false,
@@ -282,36 +278,54 @@ $(document).ready( function () {
     var onClickSeleccionarImagen = function (e) {
         e.preventDefault();
         var url = $('.js-url-imagen').val();
+        var spinner = $modalImagenes.find('.espere');
+        spinner.removeClass('hidden');
 
-        testImage( url, function (url, result) {
-            if ( result === 'success') {
-                
-                fabric.Image.fromURL( url, function(image) {
-                    image.set({
-                        left: 0,
-                        top: 0,
-                        angle: 0
-                    });
-                    canvasFabric.add(image);
-                    canvasFabric.getActiveObject(image);
-                    var imagen = {
-                        id: canvasFabric.getObjects().indexOf(image),
-                        src: image._originalElement.src,
-                        orden: canvasFabric.getObjects().indexOf(image)
-                    };
-                    imagenesAgregadas.push(image);
-                    objetos.push(imagen);
-                    dibujarTemplateObjetos();
-                    $modalImagenes.modal('hide');
+        $.ajax({
+            url: '/videos/desdeurl',
+            type: 'POST',
+            
+            data: { url: url }
+        })
+        .done(function(data) {
+
+            fabric.Image.fromURL( '/images/' + data , function(image) {
+                // image.crossOrigin = 'Anonymous';
+                image.set({
+                    left: 0,
+                    top: 0,
+                    angle: 0
                 });
-            }
+                canvasFabric.add(image);
+                canvasFabric.getActiveObject(image);
+                var imagen = {
+                    id: canvasFabric.getObjects().indexOf(image),
+                    src: image._originalElement.src,
+                    orden: canvasFabric.getObjects().indexOf(image)
+                };
+                imagenesAgregadas.push(image);
+                objetos.push(imagen);
+                dibujarTemplateObjetos();
+                $modalImagenes.modal('hide');
+            });
+
+        })
+        .fail(function() {
+            console.log("error");
+        })
+        .always(function() {
+            spinner.addClass('hidden');
         });
+        
+
+        
     }
 
     function testImage(url, callback, timeout) {
         timeout = timeout || 5000;
         var timedOut = false, timer;
         var img = new Image();
+        img.crossOrigin = 'Anonymous';
         img.onerror = img.onabort = function() {
             if (!timedOut) {
                 clearTimeout(timer);
@@ -329,6 +343,19 @@ $(document).ready( function () {
             timedOut = true;
             callback(url, "timeout");
         }, timeout); 
+    }
+
+    var onClickClone = function (e ) {
+        e.preventDefault();
+        var $target = $(e.currentTarget);
+        var orden = parseInt( $target.data('index'));
+        //var seleccionado = canvasFabric.setActiveObject( canvasFabric.getObjects()[orden] );
+        var object = fabric.util.object.clone( canvasFabric.getObjects()[orden]  );
+        object.set('top', object.top+5);
+        object.set('left', object.left+5);
+        canvasFabric.add(object);
+        canvasFabric.renderAll();
+        dibujarTemplateObjetos();
     }
 
     $('#contenedorListaObjetos').on('click', '.js-flip-x', function(e) {
@@ -370,7 +397,7 @@ $(document).ready( function () {
         canvasFabric.getObjects()[orden].set({ opacity: parseFloat(e.target.value) })
         canvasFabric.renderAll();
         
-    });
+    }).on('click', '.js-clone', onClickClone);
     
     // window.onkeydown = onKeyDownHandler;
 

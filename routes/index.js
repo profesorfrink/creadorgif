@@ -36,12 +36,17 @@ var storage = multer.diskStorage({
     cb(null, destino);
   },
   filename: function (req, file, cb) {
-    cb(null, +Date.now() + '.mp4') //Appending .jpg
+    cb(null, +Date.now() + '.mp4');
   }
 });
 var storageImagenes = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, destinoTemp);
+  },
+  filename: function (req, file, cb) {
+    // console.log( 'req', req );
+    // console.log( 'file', file );
+    cb(null, uuid.v4() + path.extname(file.originalname) ); 
   }
 });
 
@@ -99,8 +104,26 @@ router.post('/uploadimagen', uploadImage.single('file'), function ( req, res, ne
     });
     
 });
+
+router.post('/uploadwm', uploadImage.single('file'), function ( req, res, next ) {
+    
+    gm(destinoTemp + '/' + req.file.filename)
+    .resize(320, 240, '>')
+    .write( destinoImagenes +'/' + req.file.filename , function(err){
+        if ( err ) {
+            return next(err);
+        }
+        res.status(200).json(req.file);
+    });
+    
+});
+
 router.post('/uploads', upload.single('file'), function ( req, res, next ) {
-    videoServices.procesarVideo ( req.file.path, function ( err, videoGuardado ) {
+    var datos = {
+        pathVideo: req.file.path,
+        watermark: req.body.watermark || ''
+    };
+    videoServices.procesarVideo ( datos, function ( err, videoGuardado ) {
         if ( err ) {
             return next ( err );
         } else {
@@ -152,6 +175,10 @@ router.post('/generar',  validar.checkDatos, function ( req, res, next ) {
         ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
         idVideo: datos.filename
     };
+    if ( datos.watermark.trim() !== 0 ) {
+        jobData.watermark = datos.watermark;
+        jobData.ubicacionWM = datos.ubicacion;
+    }
 
     var job = jobs.create('procesar', jobData );
     job.on('complete',  function ( imagen ) {

@@ -9,16 +9,18 @@ var uuid = require('uuid');
 var gm = require('gm');
 var destino = path.join( __dirname, '../public/videos');
 var destinoImagenes = path.join( __dirname, '../public/images');
+var destinoTemp = path.join( __dirname, '../public/temp');
+
 var dbVideos = new nedb({
     filename: path.join( __dirname, '../db/videos.db'), 
 });
 function VideoServices() { };
 
-VideoServices.prototype.procesarVideo = function ( pathVideo, callback ) {
+var procesarVideo = function ( err, pathVideo, callback ) {   
+    if ( err ) {
+        return callback (err);
+    }
     var nombres = [];
-
-    dbVideos.loadDatabase();
-
     async.parallel([
         function ( done ) {     //respuestas[0]
             ffmpeg.ffprobe( pathVideo,  done);
@@ -62,6 +64,32 @@ VideoServices.prototype.procesarVideo = function ( pathVideo, callback ) {
             dbVideos.insert( video, callback);
         }
     });
+}
+
+VideoServices.prototype.procesarVideo = function ( datos, callback ) {
+    
+    dbVideos.loadDatabase();
+
+    if ( datos.watermark.trim() !== '') {
+        var nombreNuevo = path.join( destino, uuid.v4() + path.extname( datos.pathVideo ));
+        var pathWatermark = path.join ( destinoTemp, datos.watermark );
+
+        ffmpeg( datos.pathVideo )
+            .size('320x?')
+            .addOptions([
+                '-vf', 'movie='+ pathWatermark + ' [watermark]; [in] [watermark] overlay=main_w-overlay_w-5:5 [out]'
+            ])
+            .on('error', function(err) {
+                console.log('An error occurred: ' + err.message);
+                return callback( err );
+            })
+            .on('end', function() {
+                procesarVideo (null, nombreNuevo, callback );
+            })
+            .save( nombreNuevo );
+    } else {
+        procesarVideo (null, datos.pathVideo, callback );
+    }
 };
 
 module.exports = new VideoServices();

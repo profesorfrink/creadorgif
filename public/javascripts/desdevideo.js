@@ -7,14 +7,21 @@ Handlebars.registerHelper('fechaSrt', function ( value ) {
 Handlebars.registerHelper('colorSubtitulo', function ( value ) {
     return value || 'yellow';
 });
+Handlebars.registerHelper('serializar', function ( subtitulo, idx ) {
+    subtitulo.idx = idx;
+    return JSON.stringify( subtitulo );
+});
 $(document).ready( function ( ) {
    
     var fin = parseInt($('#hasta').text());
     var $video = $('video.js-video-principal');
     var templateVideo = Handlebars.compile( $('#tplVideoPreview').html());
     var $hdnDuracion = $('#hdnDuracion');
+    var $hdnWatermark = $('#hdnWatermark');
     var $hdnSubtitulosSrt = $('#hdnSubtitulosSrt');
     var $spanTiempo = $('#tiempoActual');
+
+    var $spanDesde = $('#desde');
 
     var templateListaSubtitlos = Handlebars.compile( $('#tplListaSubtitulos').html() );
     var templateTextoSubtitulos = Handlebars.compile( $('#tplSubtitulos').html() );
@@ -28,15 +35,61 @@ $(document).ready( function ( ) {
     var $botonAgregar = $formSubtitulo.find('.js-agregar-subtitulo');
     var $hdnSubtitulos = $('.js-subtitulo');
     var $rangeSlider = $("#rangeSlider");
-
+    var $contenedorPreview = $('#contenedorPreview');
     var videoPrincipal = document.getElementById( $video.attr('id') );
 
     videoPrincipal.addEventListener( 'timeupdate', mostarTiempoVideo, false );
+    
+    Dropzone.options.uploader = {
+            paramName: "file", // El nombre que se usará como parametro para transferir el archivo
+            maxFilesize: 1, // MB
+            maxFiles: 1, // cantidad máxima de imagenes a subir
+            addRemoveLinks: true,
+            acceptedFiles: 'image/jpeg, image/pjpeg, image/png',
+            dictRemoveFile: "Borrar",
+            dictDefaultMessage: "Arrastre una imagen aquí o haga click para seleccionar (Tamaño máximo 1MB)",
+            
+            init: function() {
+                this.on("sending", function(file) {
+                  // $botonEnviar.prop('disabled', true);
 
-   
+                });
+
+                this.on( 'complete', function (file, par2){
+                  // debugger;
+                  // $botonEnviar.prop('disabled', false );
+                  console.log(file);
+                }),
+
+                
+                this.on("maxfilesexceeded", function(file) {
+                  alert("Solo se puedem agregar 1 imagen");
+                });
+
+                this.on('removedfile', function(file) {
+                    $hdnWatermark.val('');
+                });
+
+                this.on("success", function(file, responseText) { 
+                  //alert("Success.");
+                  //console.log( responseText );
+                    $hdnWatermark.val( responseText.filename );
+                });
+
+            // Using a closure.
+            var _this = this;
+          }
+    };
+
+    function setVideoPreview () {
+        var videoPreview = $('#contenedorPreview').find('video')[0];
+        videoPreview.addEventListener('timeupdate', chequearLimitesVideo, false );
+    }
+    
 
     function mostarTiempoVideo() {
-        var tiempo = moment( new Date ).startOf('day').add( videoPrincipal.currentTime, 'seconds').format('H:mm:ss.SSS');
+        
+        var tiempo = moment( new Date ).startOf('day').add( parseFloat( videoPrincipal.currentTime ), 'seconds').format('H:mm:ss.SSS');
         $spanTiempo.text(tiempo);
     }
 
@@ -44,7 +97,9 @@ $(document).ready( function ( ) {
         src: $video.find('source')[0].src,
         poster: $video.attr('poster')
     };
-    $('#contenedorPreview').html(templateVideo( datos ));
+    $contenedorPreview.html(templateVideo( datos ));
+    
+    // $rangeSlider.valuesChanged();
 
     $('.js-ayuda').click( function ( e ) {
         introJs().setOptions({
@@ -81,7 +136,20 @@ $(document).ready( function ( ) {
         $rangeSlider.rangeSlider('values', valores.min, valorHasta);
     });
 
+    $contenedorPreview.on('click', '.js-copiar-preview-desde', function (e) {
+        e.preventDefault();
+        var valor = $contenedorPreview.find('#tiempoPreview').text();
+        $desde.val( valor);
+    });
+
+    $contenedorPreview.on('click', '.js-copiar-preview-hasta', function (e) {
+        e.preventDefault();
+        var valor = $contenedorPreview.find('#tiempoPreview').text();
+        $hasta.val( valor );
+    });
+
     var max = $rangeSlider.data('hasta');
+
     $rangeSlider.rangeSlider({ 
         defaultValues: { 
             min: 0, 
@@ -97,7 +165,7 @@ $(document).ready( function ( ) {
                     return value;
                     
             }
-     }).bind("valuesChanged", function(e, data){
+     }).on("valuesChanged", function(e, data){
         var t = '#t='+ data.values.min +',' + data.values.max;
         var datos = {
            src: $video.find('source')[0].src + t,
@@ -107,12 +175,11 @@ $(document).ready( function ( ) {
         
 
         var render = templateVideo( datos );
-        $('#desde').text( data.values.min.toFixed(3) );
+        $spanDesde.text( data.values.min.toFixed(3) );
         $('#hasta').text( data.values.max.toFixed(3));
-        $('#contenedorPreview').html( render ); 
+        $contenedorPreview.html( render ); 
 
-        var videoPreview = $('#contenedorPreview').find('video')[0];
-        videoPreview.addEventListener('timeupdate', chequearLimitesVideo, false );
+        setVideoPreview();
     });
 
     var onClickAgregarSubtitulo = function ( e ) {
@@ -123,32 +190,80 @@ $(document).ready( function ( ) {
             texto: $texto.val(),
             color: $comboColor.val()
         };
-        subtitulos.push(subtitulo);
+        var idx = parseInt($botonAgregar.attr('data-index')) || -1;
+
+        if ( idx > - 1 ) {
+            subtitulos[idx] = subtitulo;
+            $botonAgregar.attr('data-index', -1);
+        } else {
+            subtitulos.push(subtitulo);
+        }
+        
         dibujarTemplates();
         $formSubtitulo.find('input').val('');
         $desde.val( subtitulo.hasta );
         $desde.focus();
+        agregarSubtitulosVideo();
     };
     function chequearLimitesVideo () {
         var video = $('#contenedorPreview').find('video')[0];
         var tiempos = $(video).find('source')[0].src.split('#t=')[1].split(',');
         var desde = parseFloat ( tiempos[0] );
         var hasta = parseFloat ( tiempos[1] );
-        $('#tiempoPreview').text( moment( new Date ).startOf('day').add( video.currentTime, 'seconds').format('H:mm:ss.SSS') );
-        if ( video.currentTime > hasta ) {
+        $('#tiempoPreview').text( moment( new Date ).startOf('day').add( parseFloat(video.currentTime - desdeEnFloat()) , 'seconds').format('H:mm:ss.SSS') );
+        
+        if ( video.currentTime > hasta || video.currentTime < desde ) {
             video.currentTime = desde;
             video.pause();
         }
 
+
     }
 
-    $('#contenedorPreview').on('click', '.js-reproducir-preview', function (e){
+    function agregarSubtitulosVideo() {
+        if ( window.VTTCue) {
+            var i, l;
+            var video = $('#contenedorPreview').find('video')[0];
+            for (i = 0; i < video.textTracks.length; i++) {
+                    video.textTracks[i].mode = "disabled";
+            }
+            video.textTracks[ contadorSubtitulos - 1] = track;
+            var track = video.addTextTrack("captions", "Spanish", "es");
+            var contadorSubtitulos = video.textTracks.length;
+            
+            track.mode = "showing";
+            l = subtitulos.length;
+            for (i=0; i < l; i++) {
+                var arrastre = desdeEnFloat();
+                var desde = parseFloat( moment.duration( subtitulos[i].desde, 'H:mm:ss.SSS').asSeconds()) + arrastre ;
+                var hasta = parseFloat( moment.duration( subtitulos[i].hasta, 'H:mm:ss.SSS').asSeconds()) + arrastre;
+
+                track.addCue(new VTTCue( desde, hasta, subtitulos[i].texto ));
+            }
+
+            // volverPreviewAlComienzo();
+            
+        }
+        
+    }
+
+    function desdeEnFloat() {
+        var valores = $rangeSlider.rangeSlider('values');
+        var ret = parseFloat( $('#desde').text() );
+        return ret;
+    }
+
+    function volverPreviewAlComienzo() {
+        var video = $contenedorPreview.find('video')[0];
+        video.currentTime = desdeEnFloat();
+    }
+    $contenedorPreview.on('click', '.js-reproducir-preview', function (e){
         e.preventDefault();
         var $video = $('#contenedorPreview').find('video')[0];
         $video.play();
     });
 
-    $('#contenedorPreview').on('click', '.js-pausar-preview', function (e){
+    $contenedorPreview.on('click', '.js-pausar-preview', function (e){
         e.preventDefault();
         var $video = $('#contenedorPreview').find('video')[0];
         $video.pause();
@@ -170,9 +285,24 @@ $(document).ready( function ( ) {
         dibujarTemplates();
     };
 
+    var onClickEditarSubtitulo = function (e) {
+        e.preventDefault();
+        var $target = $(e.currentTarget);
+        var $tr = $target.parentsUntil('tbody');
+        var subtitulo = JSON.parse($tr.find('.serialized').val());
+        $desde.val( subtitulo.desde );
+        $hasta.val ( subtitulo.hasta );
+        $texto.val( subtitulo.texto );
+        $botonAgregar.attr('data-index', subtitulo.idx);
+        $comboColor.val(subtitulo.color);
+    }
 
 
-    $('#zonaSubtitulos').on('click', '.js-eliminar-subtitulo', onClickEliminarSubtitulo );
+
+    $('#zonaSubtitulos')
+        .on('click', '.js-eliminar-subtitulo', onClickEliminarSubtitulo )
+        .on('click', '.js-editar-subtitulo', onClickEditarSubtitulo);
+    
     $botonAgregar.click( onClickAgregarSubtitulo );
 
 
@@ -182,7 +312,9 @@ var onClickCrearClip = function ( e ) {
     var datos = {
         nombreArchivo: nombre,
         desde: $('#desde').text(),
-        hasta: $('#hasta').text()
+        hasta: $('#hasta').text(),
+        watermark: $('#hdnWatermark').val(),
+        ubicacion: $('#cboUbicacion').val()
     };
 
     $.ajax({
@@ -207,7 +339,7 @@ var onClickCrearClip = function ( e ) {
         var hasta = parseInt(values[1]).toFixed(3);
         var t = '#t='+ desde +',' + hasta;
 
-        $('#desde').text( desde);
+        $desde.text( desde);
         $('#hasta').text( hasta);
 
         var datos = {
@@ -216,7 +348,7 @@ var onClickCrearClip = function ( e ) {
         };
         var render = templateVideo( datos );
 
-        $('#contenedorPreview').html( render );
+        $contenedorPreview.html( render );
         
 
     };
@@ -233,7 +365,9 @@ var onClickCrearClip = function ( e ) {
             idVideo: $video.attr('id'),
             colores: $('#cal-colores').val(),
             compresion: $('#cal-compresion').val(),
-            fps: $('#cal-fps').val()
+            fps: $('#cal-fps').val(),
+            watermark: $('#hdnWatermark').val(),
+            ubicacion: $('#cboUbicacion').val()
         };
 
         
@@ -256,4 +390,6 @@ var onClickCrearClip = function ( e ) {
     })
    
     $('.js-crear-clip').click( onClickCrearClip );
+    var valoresDefecto = $rangeSlider.rangeSlider('values');
+    $rangeSlider.rangeSlider('values', 0.000001, valoresDefecto.max);
 });

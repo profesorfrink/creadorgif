@@ -61,10 +61,7 @@ $(document).ready( function () {
             acceptedFiles: 'image/jpeg, image/pjpeg, image/png',
             dictRemoveFile: "Borrar",
             dictDefaultMessage: "Arrastre una imagen aquí o haga click para seleccionar (Tamaño máximo 1MB)",
-            sending: function(file, xhr, formData){
-              
-            },
-
+           
             init: function() {
                 this.on("sending", function(file) {
                   // $botonEnviar.prop('disabled', true);

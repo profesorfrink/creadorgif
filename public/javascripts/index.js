@@ -13,10 +13,53 @@ $(document).ready( function () {
     var templateSubtitulos = Handlebars.compile( $('#tplSubtitulosSrt').html() );
     var templateImage = Handlebars.compile( $('#tplImagen').html() );
     var $video;
+    var $hdnWatermark = $('#hdnWatermark');
+    var $espere = $('.espere');
     // var $galeria = $('#galeria');
     var $botonCrear = $('.js-crear-gif');
 
-        
+    Dropzone.options.uploaderwm = {
+        paramName: "file", // El nombre que se usará como parametro para transferir el archivo
+        maxFilesize: 1, // MB
+        maxFiles: 1, // cantidad máxima de imagenes a subir
+        addRemoveLinks: true,
+        acceptedFiles: 'image/jpeg, image/pjpeg, image/png',
+        dictRemoveFile: "Borrar",
+        dictDefaultMessage: "Arrastre una imagen aquí o haga click para seleccionar (Tamaño máximo 1MB)",
+        sending: function(file, xhr, formData){
+          formData.append('watermark', $hdnWatermark.val() );
+        },
+        init: function() {
+            this.on("sending", function(file) {
+              // $botonEnviar.prop('disabled', true);
+
+            });
+
+            this.on( 'complete', function (file, par2){
+              // debugger;
+              // $botonEnviar.prop('disabled', false );
+              console.log(file);
+            }),
+
+            
+            this.on("maxfilesexceeded", function(file) {
+              alert("Solo se puedem agregar 1 imagen");
+            });
+
+            this.on('removedfile', function(file) {
+                $hdnWatermark.val( '' );
+            });
+
+            this.on("success", function(file, responseText) { 
+              //alert("Success.");
+              //console.log( responseText );
+                $hdnWatermark.val( responseText.filename );
+            });
+
+        // Using a closure.
+        var _this = this;
+      }
+    };
 
     // $galeria.unitegallery();
     $(".animado").jqGifPreview();
@@ -30,7 +73,8 @@ $(document).ready( function () {
             dictRemoveFile: "Borrar",
             dictDefaultMessage: "Arrastre un video aquí o haga click para seleccionar (Tamaño máximo 10MB)",
             sending: function(file, xhr, formData){
-              formData.append('aa', 'aaaa');
+                $espere.removeClass('hidden');
+                formData.append('watermark', $hdnWatermark.val() );
             },
 
             init: function() {
@@ -55,6 +99,7 @@ $(document).ready( function () {
 
                 this.on("success", function(file, responseText) { 
                   //alert("Success.");
+                    $espere.addClass('hidden');
                     var $details = $('.dz-details');
                     var datosRender = {
                         filename: responseText.nombre,
@@ -161,7 +206,8 @@ $(document).ready( function () {
                 filename : $video.attr('id'),
                 texto: '',
                 subtitulos: textoSubtitulos,
-                idVideo: $video.attr('id')
+                idVideo: $video.attr('id'),
+                watermark: $hdnWatermark.val()
             };
 
             

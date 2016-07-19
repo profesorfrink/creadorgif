@@ -7,11 +7,11 @@ var fs = require('fs');
 var nedb = require('nedb');
 var gifify = require('gifify');
 var ffmpeg = require('fluent-ffmpeg');
-
+var cmd = require('node-cmd');
 var kue = require('kue');
 var jobs = kue.createQueue(); 
 
-
+ 
 var db = new nedb({
     filename: path.join( __dirname, '../db/imagenes.db')
 });
@@ -21,22 +21,29 @@ var dbVideos = new nedb({
 
 var destino = path.join( __dirname, '../public/videos');
 var destinoImagenes = path.join( __dirname, '../public/images');
+var destinoTemp = path.join( __dirname, '../public/temp');
 var destinoGifs = path.join( __dirname, '../public/gifs');
+
 
 jobs.process('crearClip', function (job, done){
   console.log('datos', job.data );
 
   var duracion = parseFloat(job.data.hasta) - parseFloat(job.data.desde);
 
-  ffmpeg( job.data.input )
-    .videoCodec('libx264')
-    .audioCodec('libmp3lame')
-    .audioBitrate('32k')
+  var pathWatermark = path.join( destinoTemp + '/' , path.basename(job.data.watermark));
+  // var command = new ffmpeg();
+  var command = ffmpeg( job.data.input )
+    .format('mp4')
     .size('320x?')
-    .aspect('4:3')
     .seekInput( job.data.desde )
-    .duration( duracion )
-    .on('error', function(err) {
+    .duration( duracion );
+    if ( job.data.watermark ) {
+        command.addOptions([
+          '-vf', 'movie='+ pathWatermark + ' [watermark]; [in] [watermark] overlay=main_w-overlay_w-5:5 [out]'
+        ]);
+    }
+    
+    command.on('error', function(err) {
       console.log('An error occurred: ' + err.message);
     })
     .on('end', function() {
@@ -50,13 +57,15 @@ jobs.process('procesar', function (job, done){
     console.log('procesando', job.data);
     db.loadDatabase();
     dbVideos.loadDatabase();
-
+    
+    
     var gif = fs.createWriteStream(job.data.output);
     dbVideos.findOne( { _id: job.data.idVideo }).exec( function ( err, video ) {
 
         var inputVideo = path.join( destino, video.nombre );
         var imagenVideo = path.join( destinoImagenes, video.screenshot );
 
+        
         var stream = gifify( inputVideo, job.data.options).pipe(gif);
         var pathFrame;
         stream.on( 'finish', function () {
@@ -70,7 +79,14 @@ jobs.process('procesar', function (job, done){
                         .resize('320','-1')
                         .write( pathFrame, function ( err, resultado ) {
                             if ( err ) console.log(err);
+                            // cmd.get(
+                            //     'convert ' + job.data.output + ' -coalesce -gravity northeast null: ' +  pathWatermark + ' -layers composite -layers optimize ' + job.data.output,
+                            //      function(data){
+                            //         done(null, pathFrame);
+                            //     }
+                            // );
                             done(null, pathFrame);
+                            
                         });
                 },
                 function ( pathScreenshot, done ) {

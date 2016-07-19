@@ -12,7 +12,7 @@ var kue = require('kue');
 var uuid = require('uuid');
 var jobs = kue.createQueue();
 var fs = require('fs');
-
+var request = require('request');
 
 var dbVideos = new nedb({
     filename: path.join( __dirname, '../db/videos.db'), 
@@ -65,6 +65,10 @@ router.post('/crearclip', function ( req, res, next ) {
       ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
   };
 
+  if ( datos.watermark.trim() !== 0 ) {
+    jobData.watermark = datos.watermark;
+    jobData.ubicacionWM = datos.ubicacion;
+  }
   var job = jobs.create('crearClip', jobData );
 
   job.on('complete',  function ( clip  ) {
@@ -82,6 +86,8 @@ router.post('/crearclip', function ( req, res, next ) {
 });
 
 router.get('/collage/:id', function ( req, res, next ) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   dbVideos.loadDatabase();
   dbVideos.findOne( { _id: req.params.id }).exec( function ( err, video ) {
     if ( err ) {
@@ -111,6 +117,34 @@ router.get('/desde/:id', function ( req, res, next ) {
     }
   });
 });
+
+var download = function(uri, filename, callback){
+  
+  request.head(uri, function(err, res, body){
+    var headers = res.headers['content-type'];
+    var lentgth = res.headers['content-length'];
+    console.log('content-type:', headers );
+    console.log('content-length:',  lentgth);
+    var nombreArchivo =  path.join(__dirname , '../public/images/'  + filename + '.' + path.extname( uri ) ) ;
+
+    request(uri).pipe( fs.createWriteStream( nombreArchivo ).on('close', function() {
+      return callback( null, nombreArchivo);
+    }));
+  });
+};
+
+router.post('/desdeurl', function (req, res, next ) {
+  var archivo = req.body.url;
+
+  download( archivo, uuid.v4(), function (err, pathArchivoGenerado ) {
+    if ( err ) {
+      return next (err);
+    } else {
+      res.status(200).json( path.basename( pathArchivoGenerado )); 
+    }
+  });
+});
+
 
 
 module.exports = router;

@@ -5,6 +5,7 @@ block css
     //- link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/jQRangeSlider/5.7.2/css/iThing.min.css")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/jQRangeSlider/5.7.2/css/classic.min.css")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.2.0/introjs.min.css")
+    link(rel="stylesheet", href="//cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.css")
 block content
     .text-center.center-block
         a.btn.btn-success.js-ayuda(href="#") Ayuda
@@ -36,19 +37,35 @@ block content
                 div.hidden
                     span#desde(style="float: left; margin-top: 2em;") 0
                     span#hasta.pull-right(style="margin-top: 2em;") #{duracion}
-            .panel
-                .panel-header
-                    h3 Parámetros de calidad
-                .panel-body
-                    .form-group
-                        label Colores (máximo 255)
-                        input.form-control#cal-colores(type="number", value="128", mim="8", max="255", step="1")
-                    .form-group
-                        label Compresión (0 = no comprime, 100 = máximo)
-                        input.form-control#cal-compresion(type="number", value="40", mim="0", max="100", step="1")
-                    .form-group
-                        label Frames por segundo 
-                        input.form-control#cal-fps(type="number", value="10", mim="1", max="30", step="1")
+            .col-xs-12.col-sm-6
+                .panel
+                    .panel-header
+                        h3 Parámetros de calidad
+                    .panel-body
+                        .form-group
+                            label Colores (máximo 255)
+                            input.form-control#cal-colores(type="number", value="128", mim="8", max="255", step="1")
+                        .form-group
+                            label Compresión (0 = no comprime, 100 = máximo)
+                            input.form-control#cal-compresion(type="number", value="40", mim="0", max="100", step="1")
+                        .form-group
+                            label Frames por segundo 
+                            input.form-control#cal-fps(type="number", value="10", mim="1", max="30", step="1")
+            .col-xs-12.col-sm-6
+                .form-group
+                    label Marca de agua
+                    form#uploader.dropzone(action="/uploadwm", enctype="multipart/form-data", method="POST")
+                      .fallback
+                          input(name="file", type="file", multiple)
+                .form-group.hidden
+                    label Ubicación
+                    select.form-control#cboUbicacion
+                        option(value="0") Noroeste
+                        option(value="1") Noreste
+                        option(value="2") Centrado
+                        option(value="3") Sudeste
+                        option(value="4") Sudoeste
+                    input(type="hidden")#hdnWatermark
 
         .text-center.center-block()
             button.btn.btn-primary.js-generar(type="button", style="margin: 2em;", data-intro='Cuando tengamos todo listo hacemos click aquí y daremos comienzo a la creación del gif animado', data-step="5") Generar imagen
@@ -70,7 +87,7 @@ block js
     script(src="/javascripts/jQAllRangeSliders-min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.2.0/intro.js")
-    
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.js")
     script(src="/javascripts/desdevideo.js")
 
     +tplTextoSubtitulos
@@ -78,19 +95,30 @@ block js
     +tplSubtitulosSrt
     script(type="x-handlebars")#tplVideoPreview.
         <h3>Previsualización del segmento seleccionado</h3>
-        <video id="preview" preload="auto" poster="{{poster}}" data-setup="{}" class="img-responsive">
-            <source src="{{ src }}" type='video/mp4'>
-            <source src="{{ src }}" type='video/webm'>
-            <p class="vjs-no-js">
-              To view this video please enable JavaScript, and consider upgrading to a web browser that
-              <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
-            </p>
-        </video>
-
         <div class="col-xs-12">
-            <p class="text-center">
-                <span class="label label-default" id="tiempoPreview">0:00:00.000</span>
-            </p>
+            <video id="preview" preload="auto" poster="{{poster}}" data-setup="{}" controls class="img-responsive">
+                <source src="{{ src }}" type='video/mp4'>
+                <source src="{{ src }}" type='video/webm'>
+                <p class="vjs-no-js">
+                  To view this video please enable JavaScript, and consider upgrading to a web browser that
+                  <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+                </p>
+            </video>
+        </div>
+        <div class="col-xs-12">
+            <div class="row">
+                <p class="text-center">
+                    <span class="label label-default" id="tiempoPreview">0:00:00.000</span>
+                </p>
+            </div>
+            <div class="row">
+                <p class="text-center">
+                    <div class="btn-group ">
+                        <button class="btn btn-info btn-xs js-copiar-preview-desde">Establecer en subtitulo desde</button>
+                        <button class="btn btn-success btn-xs js-copiar-preview-hasta">Establecer en subtitulo hasta</button>
+                    </div>
+                </p>
+            </div>
         </div>
         <p class="text-center">
             <div role="group" class="btn-group text-center">

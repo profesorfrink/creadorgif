@@ -17,13 +17,13 @@ Para quienes no sepan generar claves ssh, aquí tienen tutoriales para [mac/linu
     apt-get update
 3- Instalamos imagemagick, ffmpeg (junto con sus prerrequisitos) y redis
 
-    apt-get build-dep imagemagick ffmpeg
-    apt-get install -y imagemagick ffmpeg redis-server
+    apt-get build-dep imagemagick ffmpeg -y
+    apt-get install -y imagemagick ffmpeg redis-server npm
 En caso de solicitarnos alguna confirmación, seguimos con la opción por defecto
 
 4- Instalamos GraphicsMagick y unzip
 
-    add-apt-repository ppa:dhor/myway
+    add-apt-repository ppa:dhor/myway -y
     apt-get update
     apt-get install -y unzip graphicsmagick
 5- Instalamos gifsicle

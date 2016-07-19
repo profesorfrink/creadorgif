@@ -59,11 +59,17 @@ mixin tplTablaSubtitulos
             </thead>
             <tbody>
                 {{#each subtitulos}}
-                    <tr>
-                        <td><span class="tiempo-subtitulo label label-primary">{{desde}}</span></td>
-                        <td><span class="tiempo-subtitulo label label-danger">{{hasta}}</span></td>
-                        <td><span class="" style="background-color: {{color}};">{{texto}}</span></td>
-                        <td><button class="btn btn-danger btn-xs pull-right js-eliminar-subtitulo" data-index="{{@index}}"><i class="glyphicon glyphicon-remove"></i></button></td>
+                    <tr class="fila" data-desde="{{desde}}" data-hasta="{{hasta}}" data-texto="texto" data-color="{{color}}" data-index="{{@index}}">
+                        <td>
+                            <input type="hidden" class="serialized" value="{{serializar this @index}}" />
+                            <span class="tiempo-subtitulo label label-primary tbl-tiempo-desde">{{desde}}</span>
+                        </td>
+                        <td><span class="tiempo-subtitulo label label-danger tbl-tiempo-hasta">{{hasta}}</span></td>
+                        <td><span class="tbl-texto" style="background-color: {{color}};">{{texto}}</span></td>
+                        <td class="pull-right">
+                            <button class="btn btn-primary btn-xs js-editar-subtitulo" data-index="{{@index}}" title="Editar"><i class="fa fa-edit"></i></button>
+                            <button class="btn btn-danger btn-xs js-eliminar-subtitulo" data-index="{{@index}}" title="Eliminar"><i class="glyphicon glyphicon-remove"></i></button>
+                        </td>
                     </tr>
                 {{/each}}
             </tbody>
@@ -137,10 +143,10 @@ mixin tablaObjetos
         <table class="table table-stripped">
             <thead>
                 <tr>
-                    <th>Tipo</th>
-                    <th>Valor</th>
-                    <th>Opacidad</th>
-                    <th>Acciones</th>
+                    <th class="col-sm-2">Tipo</th>
+                    <th class="col-sm-3">Valor</th>
+                    <th class="col-sm-2">Opacidad</th>
+                    <th class="col-sm-5">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -153,9 +159,10 @@ mixin tablaObjetos
                             <td>
                                 <input type="number" class="js-cambiar-opacidad" min="0" max="1" value="1" data-index="{{@index}}" data-idx="{{@index}}" step="0.05" />
                             </td>
-                            <td>
+                            <td class="pull-right">
                                 <div class="btn-group">
                                     <button class="btn btn-primary btn-xs js-seleccionar-objeto" data-index="{{@index}}" title="Seleccionar"><i class="glyphicon glyphicon-ok"></i></button>
+                                    <button class="btn btn-primary btn-xs js-clone" data-index="{{@index}}" title="Clonar"><i class="fa fa-clone"></i></button>
                                     <button class="btn btn-danger btn-xs js-eliminar-objeto" data-index="{{@index}}" data-idx="{{@index}}" title="Eliminar"><i class="glyphicon glyphicon-remove"></i></button>                         
                                 </div>
                             </td>
@@ -166,12 +173,13 @@ mixin tablaObjetos
                             <td>
                                 <input type="number" class="js-cambiar-opacidad" min="0" max="1" value="1" data-index="{{@index}}" data-idx="{{@index}}" step="0.05" />
                             <td>
-                            <td>
+                            <td class="pull-right">
                                 <div class="btn-group">
                                     <button class="btn btn-primary btn-xs js-seleccionar-objeto" data-index="{{@index}}" title="Seleccionar"><i class="glyphicon glyphicon-ok"></i></button>
                                     
                                     <button class="btn btn-info btn-xs js-flip-x" data-index="{{@index}}" title="Flip horizontal"><i class="glyphicon glyphicon-menu-right"></i></button>
                                     <button class="btn btn-warning btn-xs js-flip-y" data-index="{{@index}}" title="Flip Vertical"><i class="glyphicon glyphicon-menu-up"></i></button>
+                                    <button class="btn btn-primary btn-xs js-clone" data-index="{{@index}}" title="Clonar"><i class="fa fa-clone"></i></button>
                                     <button class="btn btn-danger btn-xs  js-eliminar-objeto" data-index="{{@index}}" data-idx="{{@index}}" title="Seleccionar"><i class="glyphicon glyphicon-remove"></i></button>                         
                                 </div>
                                 

@@ -51,6 +51,8 @@ app.use(session({
 }))
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+
 app.use('/', routes);
 app.use('/videos', videos);
 app.use('/imagenes', imagenes);
@@ -69,12 +71,13 @@ io.on('connection', function(socket){
     socketId: socketId
   };
   dbUsers.update({ ip: user.ip }, { ip: user.ip, socketId: user.socketId }, { upsert: true }, function (err, numReplaced, upsert) {
-    console.log('Ip Cliente: ' + user.ip + ', socketId: ' + user.socketId );
+    // console.log('Ip Cliente: ' + user.ip + ', socketId: ' + user.socketId );
   });
 
   
   
 });
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
