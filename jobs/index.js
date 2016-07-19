@@ -110,7 +110,7 @@ jobs.process('procesar', function (job, done){
                     if ( err ) {
                         return done ( err );
                     } else {
-                        done ( null, resultados );
+                        return done ( null, resultados );
                     }
             }) ;
         });
