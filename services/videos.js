@@ -77,11 +77,13 @@ VideoServices.prototype.procesarVideo = function ( datos, callback ) {
         ffmpeg( datos.pathVideo )
             .size('320x?')
             .addOptions([
-                '-vf', 'movie='+ pathWatermark + ' [watermark]; [in] [watermark] overlay=main_w-overlay_w-5:5 [out]'
+                '-vf', 'movie='+ pathWatermark + ' [watermark]; [in] [watermark] overlay=main_w-overlay_w-5:5 [out]',
+                '-strict -2'
             ])
-            .on('error', function(err) {
-                console.log('An error occurred: ' + err.message);
-                return callback( err );
+            .on('error', function(err, stdout, stderr) {
+              console.log("ffmpeg stdout:\n" + stdout);
+              console.log("ffmpeg stderr:\n" + stderr);
+              return callback(err);
             })
             .on('end', function() {
                 procesarVideo (null, nombreNuevo, callback );

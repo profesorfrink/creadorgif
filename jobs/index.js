@@ -32,13 +32,16 @@ jobs.process('crearClip', function (job, done){
 
   // var command = new ffmpeg();
   var command = ffmpeg( job.data.input )
-    .format('mp4')
+    // .format('mp4')
     .size('320x?')
     .seekInput( job.data.desde )
     .duration( duracion );
     if ( job.data.watermark ) {
         var pathWatermark = path.join( destinoTemp + '/' , path.basename(job.data.watermark));
-        command.addOption('-vf', 'movie='+ pathWatermark + ' [watermark]; [in] [watermark] overlay=main_w-overlay_w-5:5 [out]');
+        command.addOptions([
+            '-vf', 'movie='+ pathWatermark + ' [watermark]; [in] [watermark] overlay=main_w-overlay_w-5:5 [out]',
+            '-strict -2'
+        ]);
     }
     
     command.on('error', function(err, stdout, stderr) {
