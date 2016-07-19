@@ -7,7 +7,6 @@ var fs = require('fs');
 var nedb = require('nedb');
 var gifify = require('gifify');
 var ffmpeg = require('fluent-ffmpeg');
-var cmd = require('node-cmd');
 var kue = require('kue');
 var jobs = kue.createQueue(); 
 
@@ -15,6 +14,7 @@ var jobs = kue.createQueue();
 var db = new nedb({
     filename: path.join( __dirname, '../db/imagenes.db')
 });
+
 var dbVideos = new nedb({
     filename: path.join( __dirname, '../db/videos.db')
 });
@@ -30,7 +30,6 @@ jobs.process('crearClip', function (job, done){
 
   var duracion = parseFloat(job.data.hasta) - parseFloat(job.data.desde);
 
-  var pathWatermark = path.join( destinoTemp + '/' , path.basename(job.data.watermark));
   // var command = new ffmpeg();
   var command = ffmpeg( job.data.input )
     .format('mp4')
@@ -38,13 +37,14 @@ jobs.process('crearClip', function (job, done){
     .seekInput( job.data.desde )
     .duration( duracion );
     if ( job.data.watermark ) {
+        var pathWatermark = path.join( destinoTemp + '/' , path.basename(job.data.watermark));
         command.addOptions([
           '-vf', 'movie='+ pathWatermark + ' [watermark]; [in] [watermark] overlay=main_w-overlay_w-5:5 [out]'
         ]);
     }
     
     command.on('error', function(err) {
-      console.log('An error occurred: ' + err.message);
+      console.log('An error occurred: ' + err.message, err);
     })
     .on('end', function() {
             
