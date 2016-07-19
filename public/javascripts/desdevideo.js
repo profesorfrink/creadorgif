@@ -180,6 +180,7 @@ $(document).ready( function ( ) {
         $contenedorPreview.html( render ); 
 
         setVideoPreview();
+        agregarSubtitulosVideo();
     });
 
     var onClickAgregarSubtitulo = function ( e ) {
@@ -318,7 +319,7 @@ var onClickCrearClip = function ( e ) {
     };
 
     $.ajax({
-        url: '/videos/crearclip',
+        url: '/v/crearclip',
         type: 'POST',
         data: datos
     })

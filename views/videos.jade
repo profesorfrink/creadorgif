@@ -12,8 +12,8 @@ block content
                         source(src="/videos/#{video.nombre}", type='video/mp4')
 
                 td
-                    a.btn.btn-link(href="/videos/desde/#{video._id}") Crear gif desde este video
-                    a.btn.btn-link(href="/videos/collage/#{video._id}") Crear collage desde este video
+                    a.btn.btn-link(href="/v/desde/#{video._id}") Crear gif desde este video
+                    a.btn.btn-link(href="/v/collage/#{video._id}") Crear collage desde este video
     .text-center.center-block
         +paginador(pagina, totalPaginas, totalRegistros, 'videos')
 block js

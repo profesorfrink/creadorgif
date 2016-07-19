@@ -86,8 +86,8 @@ router.post('/crearclip', function ( req, res, next ) {
 });
 
 router.get('/collage/:id', function ( req, res, next ) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  // res.header("Access-Control-Allow-Origin", "*");
+  // res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   dbVideos.loadDatabase();
   dbVideos.findOne( { _id: req.params.id }).exec( function ( err, video ) {
     if ( err ) {

@@ -1,4 +1,3 @@
-
 Estos son los pasos para tener funcionando el sitio en una vps de digitalocean (aplicable a otras vps).
 
 **Prerrequisitos**
@@ -17,7 +16,8 @@ Para quienes no sepan generar claves ssh, aquí tienen tutoriales para [mac/linu
     apt-get update
 3- Instalamos imagemagick, ffmpeg (junto con sus prerrequisitos) y redis
 
-    apt-get build-dep imagemagick ffmpeg -y
+    apt-get build-dep imagemagick -y
+    apt-get build-dep ffmpeg -y
     apt-get install -y imagemagick ffmpeg redis-server npm
 En caso de solicitarnos alguna confirmación, seguimos con la opción por defecto
 
@@ -42,6 +42,7 @@ En caso de solicitarnos alguna confirmación, seguimos con la opción por defect
 
     useradd -mrU web
     mkdir /var/www
+    chown -R web /var/www
     chgrp -R web /var/www
     cd /var/www
 9- Comenzamos con nuestro nuevo usuario, bajamos el programa, instalamos las depedencias y ejecutamos con pm2 para que en caso de error se reinicie el programa
@@ -63,6 +64,7 @@ RECOMENDACIONES
 1- Instalar nginx para servir archivos estáticos. Si vamos a usar nuestro programa desde la web, Nginx es un servidor super eficiente para este tipo de tareas
 Si estamos como usuario web todavía, deberemos ejecutar el comando `exit`
 
+    exit
     apt-get install -y nginx
    
 configuramos el archivo default para que las peticiones que llegan a nuestro servidor nginx, en caso de no ser archivos estáticos, se transladen a nuestro programa. Como es dificultoso borrar el contenido desde el editor nano, directamente borramos el archivo y lo volvemos a crear.
@@ -93,8 +95,7 @@ Este es el contenido que hay que pegar en el archivo default
       root /var/www/creadorgif;
       access_log off;
       expires 24h;
-    }
-}
+    }}
 
 Finalmente reiniciamos el servicio de nginx para que tome los cambios, una vez hecho esto ya deberíamos poder acceder a nuestra web desde ip.nuestro.vps
 
@@ -120,9 +121,7 @@ y al final del mismo, agregamos la siguiente linea
     sudo sysctl  vm.vfs_cache_pressure=50
 Editamos el archivo /etc/sysctl.conf para que estos cambios no se pierdan al reiniciar el servidor
 
+    nano  /etc/sysctl.conf
     vm.swappiness=10
     vm.vfs_cache_pressure=50
 
-
-
-> Written with [StackEdit](https://stackedit.io/).

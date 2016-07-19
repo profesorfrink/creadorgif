@@ -3,6 +3,7 @@
 var async = require('async');
 var ffmpeg = require('fluent-ffmpeg');
 var path = require('path');
+var paths = require('../paths');
 var fs = require('fs');
 var nedb = require('nedb');
 var uuid = require('uuid');
@@ -12,27 +13,28 @@ var destinoImagenes = path.join( __dirname, '../public/images');
 var destinoTemp = path.join( __dirname, '../public/temp');
 
 var dbVideos = new nedb({
-    filename: path.join( __dirname, '../db/videos.db'), 
+    filename: paths.dbVideos 
 });
+
 function VideoServices() { };
 
-var procesarVideo = function ( err, pathVideo, callback ) {   
-    if ( err ) {
-        return callback (err);
-    }
+
+VideoServices.prototype.procesarVideo = function ( datos, callback ) {
+    
+    dbVideos.loadDatabase();
     var nombres = [];
     async.parallel([
         function ( done ) {     //respuestas[0]
-            ffmpeg.ffprobe( pathVideo,  done);
+            ffmpeg.ffprobe( datos.pathVideo,  done);
         }, 
         function ( done ) {     //respuestas[1]
-            ffmpeg( pathVideo )
+            ffmpeg( datos.pathVideo )
               .on('filenames', function(filenames) {
                 nombres =  filenames.join(', ');
               })
               .on('end', function(err, par1) {
-                var pathImagenOptimizada = destinoImagenes + '/' + uuid.v4() + '.jpg';
-                gm( destinoImagenes + '/' + nombres )    // currently a png
+                var pathImagenOptimizada = path.join( paths.imagenes, uuid.v4() + '.jpg');
+                gm(  path.join(paths.imagenes, nombres ) )    // currently a png
                     .compress('jpeg')
                     .quality(70)
                     .write(pathImagenOptimizada,  function ( err ) {
@@ -55,7 +57,7 @@ var procesarVideo = function ( err, pathVideo, callback ) {
             } else {
 
              var video = {
-                    nombre: path.basename(pathVideo),
+                    nombre: path.basename(datos.pathVideo),
                     metadata: respuestas[0].format,
                     screenshot: path.basename(respuestas[1]),
                     duracion: respuestas[0].format.duration,
@@ -64,34 +66,29 @@ var procesarVideo = function ( err, pathVideo, callback ) {
             dbVideos.insert( video, callback);
         }
     });
-}
 
-VideoServices.prototype.procesarVideo = function ( datos, callback ) {
-    
-    dbVideos.loadDatabase();
+    // if ( datos.watermark.trim() !== '') {
+    //     var nombreNuevo = path.join( destino, uuid.v4() + path.extname( datos.pathVideo ));
+    //     var pathWatermark = path.join ( destinoTemp, datos.watermark );
 
-    if ( datos.watermark.trim() !== '') {
-        var nombreNuevo = path.join( destino, uuid.v4() + path.extname( datos.pathVideo ));
-        var pathWatermark = path.join ( destinoTemp, datos.watermark );
-
-        ffmpeg( datos.pathVideo )
-            .size('320x?')
-            .addOptions([
-                '-vf', 'movie='+ pathWatermark + ' [watermark]; [in] [watermark] overlay=main_w-overlay_w-5:5 [out]',
-                '-strict -2'
-            ])
-            .on('error', function(err, stdout, stderr) {
-              console.log("ffmpeg stdout:\n" + stdout);
-              console.log("ffmpeg stderr:\n" + stderr);
-              return callback(err);
-            })
-            .on('end', function() {
-                procesarVideo (null, nombreNuevo, callback );
-            })
-            .save( nombreNuevo );
-    } else {
-        procesarVideo (null, datos.pathVideo, callback );
-    }
+    //     ffmpeg( datos.pathVideo )
+    //         .size('320x?')
+    //         .addOptions([
+    //             '-vf', 'movie='+ pathWatermark + ' [watermark]; [in] [watermark] overlay=main_w-overlay_w-5:5 [out]',
+    //             '-strict -2'
+    //         ])
+    //         .on('error', function(err, stdout, stderr) {
+    //           console.log("ffmpeg stdout:\n" + stdout);
+    //           console.log("ffmpeg stderr:\n" + stderr);
+    //           return callback(err);
+    //         })
+    //         .on('end', function() {
+    //             afterProcesar (null, nombreNuevo, callback );
+    //         })
+    //         .save( nombreNuevo );
+    // } else {
+    //     afterProcesar (null, datos.pathVideo, callback );
+    // }
 };
 
 module.exports = new VideoServices();

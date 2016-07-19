@@ -10,14 +10,14 @@ block css
     link(rel="stylesheet", href="/stylesheets/jqGifPreview.min.css")
 block content
   h1 Generador de gifs animados
-  .col-xs-12.col-sm-4
+  .col-xs-12.col-sm-4.hidden
     .form-group
       input#hdnWatermark(type="hidden")
       label Marca de agua (opcional, se debe agregar primero)
       form#uploaderwm.dropzone(action="/uploadwm", enctype="multipart/form-data", method="POST")
         .fallback
             input(name="file", type="file", multiple)
-  .col-xs-12.col-sm-8
+  .col-xs-12
     .form-group
       label Video
       form#uploader.dropzone(action="/uploads", enctype="multipart/form-data", method="POST")
@@ -84,7 +84,7 @@ block js
             <input class="form-control" id="texto" placeholder="Ingrese el texto aquí" />
           </div>
           <div style="margin: 1em;">
-            <a class="btn btn-link" href="/videos/desde/{{id}}" title="permite hacer clips a partir del video subido y generar subtítulos avanzados">Editor avanzado</a>
+            <a class="btn btn-link" href="/v/desde/{{id}}" title="permite hacer clips a partir del video subido y generar subtítulos avanzados">Editor avanzado</a>
           </div>
           
           <div id="rangeSlider" />

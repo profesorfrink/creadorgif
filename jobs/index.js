@@ -26,7 +26,7 @@ var destinoGifs = path.join( __dirname, '../public/gifs');
 
 
 jobs.process('crearClip', function (job, done){
-  console.log('datos', job.data );
+  // console.log('datos', job.data );
 
   var duracion = parseFloat(job.data.hasta) - parseFloat(job.data.desde);
 
@@ -36,7 +36,7 @@ jobs.process('crearClip', function (job, done){
     .size('320x?')
     .seekInput( job.data.desde )
     .duration( duracion );
-    if ( job.data.watermark ) {
+    if ( job.data.watermark.trim() !== '' ) {
         var pathWatermark = path.join( destinoTemp + '/' , path.basename(job.data.watermark));
         command.addOptions([
             '-vf', 'movie='+ pathWatermark + ' [watermark]; [in] [watermark] overlay=main_w-overlay_w-5:5 [out]',

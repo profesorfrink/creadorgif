@@ -123,6 +123,7 @@ router.post('/uploads', upload.single('file'), function ( req, res, next ) {
         pathVideo: req.file.path,
         watermark: req.body.watermark || ''
     };
+    
     videoServices.procesarVideo ( datos, function ( err, videoGuardado ) {
         if ( err ) {
             return next ( err );

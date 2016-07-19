@@ -54,8 +54,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.use('/', routes);
-app.use('/videos', videos);
-app.use('/imagenes', imagenes);
+app.use('/v', videos);
+app.use('/i', imagenes);
 
 kue.app.set('title', 'Jobs');
 var subApp = express();
@@ -116,7 +116,11 @@ app.on('imagenNueva', function ( imagen ) {
 });
 
 app.on('clipCreado', function ( pathVideo, ipUsuario ) {
-    videoServices.procesarVideo( pathVideo, function ( err, videoGuardado ) {
+    var datos = {
+      pathVideo: pathVideo,
+      watermark: ''
+    };
+    videoServices.procesarVideo( datos, function ( err, videoGuardado ) {
       dbUsers.findOne( { ip: ipUsuario }).exec( function ( err, user ) {
           if ( user ) io.to( user.socketId).emit( 'clipCreado', videoGuardado );
       });
