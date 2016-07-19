@@ -38,13 +38,13 @@ jobs.process('crearClip', function (job, done){
     .duration( duracion );
     if ( job.data.watermark ) {
         var pathWatermark = path.join( destinoTemp + '/' , path.basename(job.data.watermark));
-        command.addOptions([
-          '-vf', 'movie='+ pathWatermark + ' [watermark]; [in] [watermark] overlay=main_w-overlay_w-5:5 [out]'
-        ]);
+        command.addOption('-vf', 'movie='+ pathWatermark + ' [watermark]; [in] [watermark] overlay=main_w-overlay_w-5:5 [out]');
     }
     
-    command.on('error', function(err) {
-      console.log('An error occurred: ' + err.message, err);
+    command.on('error', function(err, stdout, stderr) {
+      console.log("ffmpeg stdout:\n" + stdout);
+      console.log("ffmpeg stderr:\n" + stderr);
+      return done(err);
     })
     .on('end', function() {
             
@@ -58,15 +58,13 @@ jobs.process('procesar', function (job, done){
     db.loadDatabase();
     dbVideos.loadDatabase();
     
-    
-    var gif = fs.createWriteStream(job.data.output);
     dbVideos.findOne( { _id: job.data.idVideo }).exec( function ( err, video ) {
-
+        var gif = fs.createWriteStream(job.data.output);
         var inputVideo = path.join( destino, video.nombre );
         var imagenVideo = path.join( destinoImagenes, video.screenshot );
-
         
         var stream = gifify( inputVideo, job.data.options).pipe(gif);
+
         var pathFrame;
         stream.on( 'finish', function () {
             
