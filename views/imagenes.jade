@@ -9,7 +9,7 @@ block content
             a(href="/imagenes/#{imagen._id}")
                 img(alt="<a href='/i/detalles/#{imagen._id}'>Ver más datos</a>", src="/gifs/#{imagen.nombre}", data-image="/gifs/#{imagen.nombre}", data-description="<a href='/gifs/#{imagen._id}'>Link</a> ", style="display:none")
     .text-center.center-block
-        +paginador(pagina, totalPaginas, totalRegistros, 'imagenes')
+        +paginador(pagina, totalPaginas, totalRegistros, 'i')
 block js
     script(src="https://cdnjs.cloudflare.com/ajax/libs/unitegallery/1.7.28/js/unitegallery.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/unitegallery/1.7.28/themes/tiles/ug-theme-tiles.min.js")

@@ -15,6 +15,6 @@ block content
                     a.btn.btn-link(href="/v/desde/#{video._id}") Crear gif desde este video
                     a.btn.btn-link(href="/v/collage/#{video._id}") Crear collage desde este video
     .text-center.center-block
-        +paginador(pagina, totalPaginas, totalRegistros, 'videos')
+        +paginador(pagina, totalPaginas, totalRegistros, 'v')
 block js
     script(src="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.10.7/video.min.js")
