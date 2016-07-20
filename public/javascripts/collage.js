@@ -282,7 +282,7 @@ $(document).ready( function () {
         spinner.removeClass('hidden');
 
         $.ajax({
-            url: '/videos/desdeurl',
+            url: '/v/desdeurl',
             type: 'POST',
             
             data: { url: url }
