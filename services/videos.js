@@ -71,7 +71,13 @@ var aplicarAcciones = function ( err, pathVideo, cb) {
 };
 
 VideoServices.prototype.procesarVideo = function ( datos, callback ) {
-    if ( datos.watermark.trim() !== '') {
+    var wmk;
+    if ( datos.watermark ) {
+        wmk = datos.watermark;
+    } else {
+        wmk = '';
+    }
+    if ( wmk.trim() !== '') {
         var nombreNuevo = path.join( destino, uuid.v4() + path.extname( datos.pathVideo ));
         var pathWatermark = path.join ( destinoTemp, datos.watermark );
         var ubicacionWM;
