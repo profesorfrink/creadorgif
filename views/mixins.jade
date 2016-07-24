@@ -1,17 +1,18 @@
-mixin paginador(pagina, totalPaginas, totalRegistros, basePath)
+mixin paginador(pagina, totalPaginas, totalRegistros, basePath, term)
+    - term = term || ''
     nav
         ul.pager
             
             if pagina != 1
                 - var pagAnterior = parseInt(pagina) - 1;
-                li.previous: <a href="/#{basePath}?pagina=#{pagAnterior}"><span aria-hidden="true">&larr;</span> Anteriores</a>
+                li.previous: <a href="/#{basePath}?pagina=#{pagAnterior}&q=#{term}"><span aria-hidden="true">&larr;</span> Anteriores</a>
             else 
                 li.previous.disabled: <a href="#"><span aria-hidden="true">&larr;</span> Anteriores</a>
             li: span Mostrando página #{pagina} de #{totalPaginas}, total de registros #{totalRegistros}
             
             if pagina < totalPaginas
                 -var pagSiguiente = parseInt(pagina) + 1;
-                li.next: <a href="/#{basePath}?pagina=#{pagSiguiente}"><span aria-hidden="true">&rarr;</span> Siguientes</a>
+                li.next: <a href="/#{basePath}?pagina=#{pagSiguiente}&q=#{term}"><span aria-hidden="true">&rarr;</span> Siguientes</a>
             else 
                 li.next.disabled: <a href="#"><span aria-hidden="true">&rarr;</span> Siguientes</a>
 
@@ -62,9 +63,15 @@ mixin tplTablaSubtitulos
                     <tr class="fila" data-desde="{{desde}}" data-hasta="{{hasta}}" data-texto="texto" data-color="{{color}}" data-index="{{@index}}">
                         <td>
                             <input type="hidden" class="serialized" value="{{serializar this @index}}" />
-                            <span class="tiempo-subtitulo label label-primary tbl-tiempo-desde">{{desde}}</span>
+                            <span class="tiempo-subtitulo label label-primary tbl-tiempo tbl-tiempo-desde">{{desde}}</span>
+                            <button class="btn btn-xs btn-primary js-subtitulo-desde" title="Copiar en subtítulo desde"><i class="fa fa-outdent" aria-hidden="true"></i></button>
+                            <button class="btn btn-xs btn-primary js-subtitulo-hasta" title="Copiar en subtítulo hasta"><i class="fa fa-indent" aria-hidden="true"></i></button>
                         </td>
-                        <td><span class="tiempo-subtitulo label label-danger tbl-tiempo-hasta">{{hasta}}</span></td>
+                        <td>
+                            <span class="tiempo-subtitulo label label-danger tbl-tiempo tbl-tiempo-hasta">{{hasta}}</span>
+                            <button class="btn btn-xs btn-primary js-subtitulo-desde" title="Copiar en subtítulo desde"><i class="fa fa-outdent" aria-hidden="true"></i></button>
+                            <button class="btn btn-xs btn-primary js-subtitulo-hasta" title="Copiar en subtítulo hasta"><i class="fa fa-indent" aria-hidden="true"></i></button>
+                        </td>
                         <td><span class="tbl-texto" style="background-color: {{color}};">{{texto}}</span></td>
                         <td class="pull-right">
                             <button class="btn btn-primary btn-xs js-editar-subtitulo" data-index="{{@index}}" title="Editar"><i class="fa fa-edit"></i></button>

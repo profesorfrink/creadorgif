@@ -28,11 +28,14 @@ En caso de solicitarnos alguna confirmación, seguimos con la opción por defect
     add-apt-repository ppa:dhor/myway -y
     apt-get update
     apt-get install -y unzip graphicsmagick
-5- Instalamos gifsicle
+5- Instalamos gifsicle y youtube-dl
 
     curl -OJL https://github.com/pornel/giflossy/releases/download/lossy%2F1.82.1/gifsicle-1.82.1-lossy.zip
     unzip gifsicle-1.82.1-lossy.zip -d gifsicle
     mv gifsicle/linux/gifsicle-debian6 /usr/local/bin/gifsicle
+    sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
+    sudo chmod a+rx /usr/local/bin/youtube-dl
+    
 6- Instalamos los programas necesarios para nodejs
 
     npm install -g n gifify pm2

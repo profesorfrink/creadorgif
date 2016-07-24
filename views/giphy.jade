@@ -1,0 +1,25 @@
+extends layout
+block css
+    
+    link(rel="stylesheet", href="/stylesheets/jqGifPreview.min.css")
+block content
+    //- .row
+    //-     each imagen in imagenes
+    //-         .col-xs-12
+    //-             div#galeria
+    //-                 each imagen in imagenes
+    //-                     a(href="#")
+    //-                         img.animado(alt="<a href='#{imagen.bitly_url}' target='_blank' rel='noopener'>Ver más datos</a>", src="#{imagen.images.original_still.url}", data-image="#{imagen.images.original.url}", data-description="<a href='#{imagen.bitly_url}' target='_blank' rel='noopener'>Link</a> ", style="display:none")
+
+    .row#contenedor
+      each imagen in imagenes
+        .col-xs-12.col-sm-6.col-md-4.col-lg-3.item
+            img(class="animado img-responsive" src="#{imagen.images.original_still.url}" data-gif="#{imagen.images.original.url}")
+    .row.clearfix
+        +paginador(paginacion.pagina, paginacion.totalPaginas, paginacion.total_count, 'g/search', paginacion.term)
+
+block js
+    script(src="/javascripts/jqGifPreview.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery.waitforimages/2.2.0/jquery.waitforimages.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/freewall/1.0.5/freewall.min.js")
+    script(src="/javascripts/giphy.js")

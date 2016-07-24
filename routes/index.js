@@ -6,6 +6,7 @@ var multer = require('multer');
 var async = require('async');
 
 var path = require('path');
+var paths = require('../paths');
 var fs = require('fs');
 var gifify = require('gifify');
 var nedb = require('nedb');
@@ -14,8 +15,11 @@ var uuid = require('uuid');
 var jobs = kue.createQueue(); 
 var session = require('express-session');
 var validar = require('../middleware/validar');
+var validarYoutube = require('../middleware/validaryoutube');
+
 var gm = require('gm');
 var videoServices = require('../services/videos');
+var youtubedl = require('youtube-dl');
 
 var db = new nedb({
     filename: path.join( __dirname, '../db/imagenes.db'), 
@@ -83,7 +87,8 @@ router.get('/', function(req, res, next) {
             return next( err );
         } else {
             res.render('index', { 
-                imagenes: imagenes 
+                imagenes: imagenes,
+                userKey: req.session.userKey
             });
         }
     });
@@ -121,7 +126,8 @@ router.post('/uploadwm', uploadImage.single('file'), function ( req, res, next )
 router.post('/uploads', upload.single('file'), function ( req, res, next ) {
     var datos = {
         pathVideo: req.file.path,
-        watermark: req.body.watermark || ''
+        watermark: req.body.watermark || '',
+        ubicacionWM: req.body.ubicacionWM
     };
     
     videoServices.procesarVideo ( datos, function ( err, videoGuardado ) {
@@ -135,10 +141,43 @@ router.post('/uploads', upload.single('file'), function ( req, res, next ) {
     
 });
 
+router.get('/infoyoutube', function (req, res, next ) {
+    var url = req.query.urlVideo;
+    youtubedl.getInfo(url, function(err, info) {
+        if ( err ) {
+            return res.status(500).json('Hubo un problema al intentar obtener la información de la url, por favor verifique que sea correcta y vuelva a intenarlo');
+        } else {
+            res.status(200).json(info);
+        }
+    });
+});
+
 router.get('/crearmeme', function (req, res, next) {
     res.render('meme');
 })
 
+router.post('/importaryoutube', validarYoutube.validar, function (req, res, next ) {
+    var pathVideo = path.join(paths.videos, uuid.v4() + '.mp4');
+    var video = youtubedl( req.body.urlVideo, ['--format=18']);
+
+    video.pipe(fs.createWriteStream(pathVideo));
+
+    video.on('end', function() {
+        var datos = {
+            pathVideo: pathVideo,
+            watermark: req.body.watermark || '',
+            ubicacionWM: req.body.ubicacionWM || 0
+        };
+        videoServices.procesarVideo ( datos, function ( err, videoGuardado ) {
+            if ( err ) {
+                return next ( err );
+            } else {
+                res.status(200).send( videoGuardado );
+            }
+        });
+    }); 
+
+});
 router.post('/generar',  validar.checkDatos, function ( req, res, next ) {
     var datos = req.body;
 
@@ -173,7 +212,7 @@ router.post('/generar',  validar.checkDatos, function ( req, res, next ) {
         
         output: output,
         options: options,
-        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+        ip: datos.userKey,
         idVideo: datos.filename
     };
     if ( datos.watermark.trim() !== 0 ) {

@@ -13,11 +13,15 @@ var uuid = require('uuid');
 var jobs = kue.createQueue();
 var fs = require('fs');
 var request = require('request');
+var paths = require('../paths');
+var parser = require('subtitles-parser');
 
 var dbVideos = new nedb({
     filename: path.join( __dirname, '../db/videos.db'), 
 });
-
+var dbImagenes = new nedb({
+    filename: path.join( __dirname, '../db/imagenes.db'), 
+});
 /* GET users listing. */
 router.get('/', function(req, res, next) {
     dbVideos.loadDatabase();
@@ -62,7 +66,7 @@ router.post('/crearclip', function ( req, res, next ) {
       output: pathArchivoOutput,
       desde: parseFloat(datos.desde),
       hasta: parseFloat(datos.hasta),
-      ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
+      ip: datos.userKey
   };
 
   if ( datos.watermark.trim() !== 0 ) {
@@ -72,7 +76,7 @@ router.post('/crearclip', function ( req, res, next ) {
   var job = jobs.create('crearClip', jobData );
 
   job.on('complete',  function ( clip  ) {
-      res.app.emit('clipCreado', clip, req.headers['x-forwarded-for'] || req.connection.remoteAddress );
+      res.app.emit('clipCreado', clip, datos.userKey );
   });
 
   job.save( function (err ) {
@@ -85,6 +89,16 @@ router.post('/crearclip', function ( req, res, next ) {
 
 });
 
+router.post('/getsub', function (req, res, next ) {
+  fs.readFile( path.join( paths.subtitulos, req.body.sub ),'utf-8', function (err, contenido ) {
+    if ( err ) {
+      return next(err);
+    } else {
+      var data = parser.fromSrt(contenido);
+      res.status(200).json(data);
+    }
+  });
+});
 router.get('/collage/:id', function ( req, res, next ) {
   // res.header("Access-Control-Allow-Origin", "*");
   // res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -101,19 +115,46 @@ router.get('/collage/:id', function ( req, res, next ) {
     }
   });
 });
+
+
 router.get('/desde/:id', function ( req, res, next ) {
   dbVideos.loadDatabase();
-  dbVideos.findOne( { _id: req.params.id }).exec( function ( err, video ) {
-    if ( err ) {
-      return next (err);
-    } else {
-      //var duracion = Math.ceil( video.duracion );
-      var hasta = moment( new Date ).startOf('day').add( video.duracion, 'seconds'  ).format('H:mm:ss.SSS');
-      res.render('desdevideo', {
-        video: video,
-        duracion: video.duracion,
-        hasta: hasta
-      });
+  dbImagenes.loadDatabase();
+
+  async.parallel([
+      function (done) {
+        dbVideos.findOne( { _id: req.params.id }).exec( done);
+      },
+      function (done ) {
+        dbImagenes.findOne( { _id: req.query.imagen }).exec( done );
+      }
+    ], function (err, resultados) {
+        if (err) {
+          return next (err);
+        } else {
+          
+          var video = resultados[0];
+          var imagen = resultados[1];
+          var subtitulo;
+
+          if ( !video && !imagen ) {
+            return res.status(404).send('Not found');
+          }
+
+          var hasta = moment( new Date ).startOf('day').add( video.duracion, 'seconds'  ).format('H:mm:ss.SSS');
+
+          if ( imagen ) {
+            subtitulo = imagen.subtitulo;
+          } else {
+            subtitulo = '';
+          }
+          
+          res.render('desdevideo', {
+            video: video,
+            duracion: video.duracion,
+            hasta: hasta,
+            subtitulo: subtitulo
+          });
     }
   });
 });

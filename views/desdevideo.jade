@@ -6,9 +6,11 @@ block css
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/jQRangeSlider/5.7.2/css/classic.min.css")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.2.0/introjs.min.css")
     link(rel="stylesheet", href="//cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.css")
+    
 block content
     .text-center.center-block
         a.btn.btn-success.js-ayuda(href="#") Ayuda
+        input(type="hidden", value="#{subtitulo}")#hdnSubtitulo
     .col-xs-12.col-md-6
         h3 Video seleccionado
         .text-center.center-block
@@ -32,7 +34,7 @@ block content
             #rangeSlider(data-desde="0", data-hasta="#{duracion}")
             input(type="hidden")#hdnDuracion
 
-            button.btn.btn-primary.js-crear-clip.btn-block(type="button", style="margin: 1em;", data-intro='Puede crear un nuevo video con el segmento seleccionado, esto se recomienda cuando queremos añadir súbtitulos', data-step="2") Crear nuevo video con el fragmento seleccionado
+            button.btn.btn-primary.js-crear-clip.btn-block(type="button", style="margin: 1em;", data-intro='Puede crear un nuevo video con el segmento seleccionado, esto se recomienda cuando queremos añadir súbtitulos', data-step="2") <i class="fa fa-scissors" aria-hidden="true"></i> Crear nuevo video con el fragmento seleccionado
             div#range(style="margin: 1em;")
                 div.hidden
                     span#desde(style="float: left; margin-top: 2em;") 0

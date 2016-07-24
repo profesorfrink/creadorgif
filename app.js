@@ -7,14 +7,18 @@ var bodyParser = require('body-parser');
 var kue = require('kue');
 
 var session = require('express-session');
+var RedisStore = require('connect-redis')(session);
 
 var videoServices = require('./services/videos');
 
 var routes = require('./routes/index');
 var videos = require('./routes/videos');
 var imagenes = require('./routes/imagenes');
+var giphy = require('./routes/giphy');
 
 var app = express();
+
+var checkUserKey = require('./middleware/userkey');
 
 var nedb = require('nedb');
 
@@ -45,17 +49,19 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser(  SECRETCOOKIE, { key: COOKIEKEY } ));
 
 app.use(session({
+  store: new RedisStore(),
   secret: SECRETSESSION,
-  resave: false,
+  resave: true,
   saveUninitialized: true
 }))
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-
+app.use( checkUserKey.checkUserKey );
 app.use('/', routes);
 app.use('/v', videos);
 app.use('/i', imagenes);
+app.use('/g', giphy);
 
 kue.app.set('title', 'Jobs');
 var subApp = express();
@@ -73,9 +79,12 @@ io.on('connection', function(socket){
   dbUsers.update({ ip: user.ip }, { ip: user.ip, socketId: user.socketId }, { upsert: true }, function (err, numReplaced, upsert) {
     // console.log('Ip Cliente: ' + user.ip + ', socketId: ' + user.socketId );
   });
+  
+  socket.on('room', function(room) {
+      console.log('room ' + room );
+      socket.join(room);
+  });
 
-  
-  
 });
 
 // catch 404 and forward to error handler
@@ -97,6 +106,8 @@ if (app.get('env') === 'development') {
       error: err
     });
   });
+} else {
+  app.enable('trust proxy');
 }
 
 // production error handler
@@ -110,9 +121,9 @@ app.use(function(err, req, res, next) {
 });
 
 app.on('imagenNueva', function ( imagen ) {
-  dbUsers.findOne( { ip: imagen.ip }).exec( function (err, user ) {
-      if ( user ) io.to(user.socketId).emit( 'imagenProcesada', imagen );
-  });
+  console.log('mensaje a ', imagen.ip);
+  io.to( imagen.ip ).emit( 'imagenProcesada', imagen );
+ 
 });
 
 app.on('clipCreado', function ( pathVideo, ipUsuario ) {
@@ -121,9 +132,7 @@ app.on('clipCreado', function ( pathVideo, ipUsuario ) {
       watermark: ''
     };
     videoServices.procesarVideo( datos, function ( err, videoGuardado ) {
-      dbUsers.findOne( { ip: ipUsuario }).exec( function ( err, user ) {
-          if ( user ) io.to( user.socketId).emit( 'clipCreado', videoGuardado );
-      });
+      io.to( ipUsuario ).emit( 'clipCreado', videoGuardado );
     });
 });
 

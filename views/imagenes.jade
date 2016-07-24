@@ -7,9 +7,12 @@ block content
     div#galeria
         each imagen in imagenes
             a(href="/imagenes/#{imagen._id}")
-                img(alt="<a href='/i/detalles/#{imagen._id}'>Ver más datos</a>", src="/gifs/#{imagen.nombre}", data-image="/gifs/#{imagen.nombre}", data-description="<a href='/gifs/#{imagen._id}'>Link</a> ", style="display:none")
+                img.animado(alt="<a href='/i/detalles/#{imagen._id}'>Ver más datos</a>", src="/images/#{imagen.screenshot}", data-image="/gifs/#{imagen.nombre}", data-description="<a href='/gifs/#{imagen._id}'>Link</a> ", style="display:none")
+        else
+            h1.jumbotron.text-center.center-block No hay imágenes para mostrar
+
     .text-center.center-block
-        +paginador(pagina, totalPaginas, totalRegistros, 'i')
+        +paginador(pagina, totalPaginas, totalRegistros, slug)
 block js
     script(src="https://cdnjs.cloudflare.com/ajax/libs/unitegallery/1.7.28/js/unitegallery.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/unitegallery/1.7.28/themes/tiles/ug-theme-tiles.min.js")

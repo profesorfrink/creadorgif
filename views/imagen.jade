@@ -11,7 +11,7 @@ block content
             source(src="/videos/#{imagen.nombreVideo}", type='video/mp4')
             source(src="/videos/#{imagen.nombreVideo}", type='video/webm')
             source(src="/videos/#{imagen.nombreVideo}", type='video/x-matroska')
-        a.btn.btn-primary(href="/v/desde/#{imagen.idVideo}") Crear un gif desde este video
+        a.btn.btn-primary(href="/v/desde/#{imagen.idVideo}?imagen=#{imagen._id}") Crear un gif desde este video
 
 block js
     script.

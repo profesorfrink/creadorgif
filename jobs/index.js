@@ -9,7 +9,7 @@ var gifify = require('gifify');
 var ffmpeg = require('fluent-ffmpeg');
 var kue = require('kue');
 var jobs = kue.createQueue(); 
-
+var moment = require('moment');
  
 var db = new nedb({
     filename: path.join( __dirname, '../db/imagenes.db')
@@ -35,9 +35,31 @@ jobs.process('crearClip', function (job, done){
     // .format('mp4')
     .size('320x?')
     .seekInput( job.data.desde )
-    .duration( duracion );
+    .duration( duracion )
+    .audioCodec('aac');
     if ( job.data.watermark.trim() !== '' ) {
         var pathWatermark = path.join( destinoTemp + '/' , path.basename(job.data.watermark));
+        var ubicacionWM = 0;
+        var wm;
+        switch(ubicacionWM) {
+            case 0: //centrado
+                wm = ' overlay=(W-w)/2:(H-h)/2 ';
+                break;
+            case 1: //Top left
+                wm = ' overlay=5:5 '
+                break;
+            case 2: // TR
+                wm = ' overlay=W-w-5:5 ';
+                break;
+            case 3: //BR
+                wm = ' overlay=W-w-5:H-h-5 ';
+                break;
+            case 4: //BL
+                wm = ' overlay=5:H-h-5 ';
+                break;
+            default:
+                break;
+        }
         command.addOptions([
             '-vf', 'movie='+ pathWatermark + ' [watermark]; [in] [watermark] overlay=main_w-overlay_w-5:5 [out]',
             '-strict -2'
@@ -50,8 +72,8 @@ jobs.process('crearClip', function (job, done){
       return done(err);
     })
     .on('end', function() {
-            
-      done ( null, job.data.output );
+        
+        done ( null, job.data.output );
     })
     .save( job.data.output );
 });
@@ -65,7 +87,7 @@ jobs.process('procesar', function (job, done){
         var gif = fs.createWriteStream(job.data.output);
         var inputVideo = path.join( destino, video.nombre );
         var imagenVideo = path.join( destinoImagenes, video.screenshot );
-        
+        job.data.options.to = parseFloat(job.data.options.to)  - parseFloat(job.data.options.from);
         var stream = gifify( inputVideo, job.data.options).pipe(gif);
 
         var pathFrame;
@@ -80,17 +102,13 @@ jobs.process('procesar', function (job, done){
                         .resize('320','-1')
                         .write( pathFrame, function ( err, resultado ) {
                             if ( err ) console.log(err);
-                            // cmd.get(
-                            //     'convert ' + job.data.output + ' -coalesce -gravity northeast null: ' +  pathWatermark + ' -layers composite -layers optimize ' + job.data.output,
-                            //      function(data){
-                            //         done(null, pathFrame);
-                            //     }
-                            // );
+                            
                             done(null, pathFrame);
                             
                         });
                 },
                 function ( pathScreenshot, done ) {
+                    var subtitulo = path.basename(job.data.options.subtitles) || '';
                     var imagen = {
                         path: job.data.output,
                         nombre: path.basename ( job.data.output ),
@@ -103,7 +121,8 @@ jobs.process('procesar', function (job, done){
                         video: inputVideo,
                         ip: job.data.ip,
                         screenshot: path.basename(pathFrame),
-                        idVideo: video._id
+                        idVideo: video._id,
+                        subtitulo: subtitulo
                     };
                     db.insert( imagen, done );
                 }

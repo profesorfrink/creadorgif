@@ -7,43 +7,106 @@ block css
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/unitegallery/1.7.28/css/unite-gallery.min.css")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/unitegallery/1.7.28/themes/default/ug-theme-default.css")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/jQRangeSlider/5.7.2/css/iThing.min.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.1.1/css/bootstrap-slider.min.css")
     link(rel="stylesheet", href="/stylesheets/jqGifPreview.min.css")
+    style.
+      .spinner {
+        margin: 50px auto;
+        width: 40px;
+        height: 40px;
+        position: relative;
+      }
+
+      .cube1, .cube2 {
+        background-color: #333;
+        width: 15px;
+        height: 15px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        
+        -webkit-animation: sk-cubemove 1.8s infinite ease-in-out;
+        animation: sk-cubemove 1.8s infinite ease-in-out;
+      }
+
+      .cube2 {
+        -webkit-animation-delay: -0.9s;
+        animation-delay: -0.9s;
+      }
+
+      @-webkit-keyframes sk-cubemove {
+        25% { -webkit-transform: translateX(42px) rotate(-90deg) scale(0.5) }
+        50% { -webkit-transform: translateX(42px) translateY(42px) rotate(-180deg) }
+        75% { -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5) }
+        100% { -webkit-transform: rotate(-360deg) }
+      }
+
+      @keyframes sk-cubemove {
+        25% { 
+          transform: translateX(42px) rotate(-90deg) scale(0.5);
+          -webkit-transform: translateX(42px) rotate(-90deg) scale(0.5);
+        } 50% { 
+          transform: translateX(42px) translateY(42px) rotate(-179deg);
+          -webkit-transform: translateX(42px) translateY(42px) rotate(-179deg);
+        } 50.1% { 
+          transform: translateX(42px) translateY(42px) rotate(-180deg);
+          -webkit-transform: translateX(42px) translateY(42px) rotate(-180deg);
+        } 75% { 
+          transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+          -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+        } 100% { 
+          transform: rotate(-360deg);
+          -webkit-transform: rotate(-360deg);
+        }
+      }
 block content
-  h1 Generador de gifs animados
-  .col-xs-12.col-sm-4.hidden
-    .form-group
-      input#hdnWatermark(type="hidden")
-      label Marca de agua (opcional, se debe agregar primero)
-      form#uploaderwm.dropzone(action="/uploadwm", enctype="multipart/form-data", method="POST")
-        .fallback
-            input(name="file", type="file", multiple)
-  .col-xs-12
-    .form-group
-      label Video
-      form#uploader.dropzone(action="/uploads", enctype="multipart/form-data", method="POST")
-        .fallback
-            input(name="file", type="file", multiple)
-  .text-center
-    .col-xs-12.col-md-5.col-lg-4
-        #contenedorVideo
-
+  .row
+    .col-xs-12.col-sm-5
+      .contenedor-forms
+        +formWM
+        +formVideo
+        +panelYoutube
+      .espere-procesando.text-center.hidden
+        span.label.label-success Espere por favor
+        .spinner
+          .cube1
+          .cube2
+        
+      #contenedorVideo
+    .col-xs-12.col-sm-7.index-instrucciones
+      form-group
+        label Instrucciones
+        div.jumbotron
+          ul.list-group
+            li.list-group-item.clearfix Si quiere que el video tenga una marca de agua ( opcional ), debe subirla antes que al video
+            li.list-group-item.clearfix Seleccione el video que quiera subir, acepta formatos mkv, mp4 y webm
+            
+            li.list-group-item.clearfix.list-group-item-warning
+              .col-xs-12(style="margin-top: 1em;")
+                .col-xs-4.text-center.center-block
+                  i.fa.fa-file-video-o.icon-format(aria-hidden="true")
+                  span.label.label-primary .mp4
+                .col-xs-4.text-center.center-block
+                  i.fa.fa-file-video-o.icon-format(aria-hidden="true")
+                  span.label.label-primary .mkv
+                .col-xs-4.text-center.center-block
+                  i.fa.fa-file-video-o.icon-format(aria-hidden="true")
+                  span.label.label-primary .webm
+            li(style="padding-top: 1em;").list-group-item.clearfix Una vez subido el video aparecerán los parámetros para la creación del gif
+          
         #contenedorPreview
-
-        hr
-        .row.espere.hidden
-          i.fa.fa-cog.fa-spin(style="font-size:24px")
-          span Espere por favor
-        button(class="btn btn-primary btn-block js-crear-gif disabled") Crear gif
-    .col-xs-12.col-md-7.col-lg-8
-        h2 Últimas imágenes generadas
-        //- div#galeria
-        //-     each imagen in imagenes
-        //-         a
-        //-           img(alt="<a href='/imagenes/#{imagen._id}'>Link</a>", src="/gifs/#{imagen.nombre}", data-image="/gifs/#{imagen.nombre}", data-description="<a href='/gifs/#{imagen._id}'>Link</a> ", style="display:none")
-        div.row
-          each imagen in imagenes
-            if imagen.screenshot
-              img(class="animado" src="/images/#{imagen.screenshot}" data-gif="/gifs/#{imagen.nombre}")
+  
+    
+  .row
+      h3.text-center(style="padding: 1em;") Últimas imágenes generadas
+      //- div#galeria
+      //-     each imagen in imagenes
+      //-         a
+      //-           img(alt="<a href='/imagenes/#{imagen._id}'>Link</a>", src="/gifs/#{imagen.nombre}", data-image="/gifs/#{imagen.nombre}", data-description="<a href='/gifs/#{imagen._id}'>Link</a> ", style="display:none")
+      div.row.text-center.center-block
+        each imagen in imagenes
+          if imagen.screenshot
+            img(class="animado" src="/images/#{imagen.screenshot}" data-gif="/gifs/#{imagen.nombre}")
 
 block js
     script(src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.js")
@@ -57,10 +120,11 @@ block js
     script(src="/javascripts/jQAllRangeSliders-min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js")
     script(src="/javascripts/jqGifPreview.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.1.1/bootstrap-slider.js")
     script(src="/javascripts/index.js")
     script(type="x-handlebars")#tplImagen.
         <a>
-            <img alt="Peppers" src="/gifs/{{nombre}}", data-image="/gifs/{{nombre}}", data-description="Those are peppers", style="display:none" />
+            <img alt="" src="/gifs/{{nombre}}", data-image="/gifs/{{nombre}}", data-description="Those are peppers", style="display:none" />
         </a>
     script(type="x-handlebars")#tplVideo.
         <video id="{{ id }}" class="video-js" controls preload="auto" data-nombre="{{nombre}}" style="margin: 1em;"
@@ -72,6 +136,9 @@ block js
               <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
             </p>
           </video>
+          <div class="" style="padding-bottom: 1em;">
+            Tiempo actual: <span id="tiempoActual" class="label label-default"></span>
+          </div>
           <div class="col-xs-12">
               <div id="range-{{filename}}" />
               <div style="padding: 1em;">
@@ -84,11 +151,18 @@ block js
             <input class="form-control" id="texto" placeholder="Ingrese el texto aquí" />
           </div>
           <div style="margin: 1em;">
-            <a class="btn btn-link" href="/v/desde/{{id}}" title="permite hacer clips a partir del video subido y generar subtítulos avanzados">Editor avanzado</a>
-            <a class="btn btn-link" href="/v/collage/{{id}}" title="permite hacer un collage desde este video">Generar collage</a>
+            <a class="btn btn-link clearfix" href="/v/desde/{{id}}" title="permite hacer clips a partir del video subido y generar subtítulos avanzados"><i class="fa fa-film" aria-hidden="true"></i> Editor avanzado</a>
+            <a class="btn btn-link pull-right" href="/v/collage/{{id}}" title="permite hacer un collage desde este video"><i class="fa fa-th" aria-hidden="true"></i> Generar collage</a>
           </div>
           
           <div id="rangeSlider" />
+
+          <div class="row hidden espere">
+            <i class="fa fa-cog fa-spin" style="font-size:24px" />
+            <span>Espere por favor</span>
+          </div>
+          <hr />
+          <button class="btn btn-primary btn-block js-crear-gif disabled"><i class="fa fa-play-circle-o" aria-hidden="true"></i> Generar gif </button>
     script(type="x-handlebars")#tplVideoPreview.
         <h3>Previsualización del segmento seleccionado</h3>
         <video id="{{id}}-preview" preload="auto" style="margin: 1em;"
@@ -105,7 +179,57 @@ block js
           </div>
           <a href="" class="btn btn-primary js-reproducir-preview">Reproducir</a>
           <a href="" class="btn btn-danger js-pausar-preview">Pausar</a>
+    script(type="x-handlebars")#tplInfoYoutube.
+      <table class="table">
+        <tbody>
+
+          <tr>Título: {{title}}
+          <input type="hidden" value="{{webpage_url}}" id="hdnUrlYoutube" />
+          </tr>
+          <tr><img class="img-responsive" src="{{thumbnail}}" /></tr>
+          <tr>
+            Formatos <select id="slFormat">
+             {{#each formats}} 
+                <option value="{{format_id}}">{{format}}</option>
+             {{/each}}
+            </select>
+          </tr>
+        </tbody>
+      </table>
+      <button class="btn btn-primary js-importar-youtube">Importar video</button>
+          
     +tplSubtitulosSrt
 
+mixin formWM
+  .form-group
+    input#hdnWatermark(type="hidden")
+    label Marca de agua (opcional, se debe agregar primero)
+    form#uploaderwm.dropzone(action="/uploadwm", enctype="multipart/form-data", method="POST")
+      .fallback
+          input(name="file", type="file", multiple)
+    select.form-control#ubicacionWM
+      option(value="2") Noreste
+      option(value="1") Noroeste
+      option(value="0") Centrado
+      option(value="4") Sudoeste
+      option(value="3") Sudeste
+
+mixin formVideo
+  .form-group
+    label Video
+    form#uploader.dropzone(action="/uploads", enctype="multipart/form-data", method="POST")
+      .fallback
+          input(name="file", type="file", multiple)
+mixin panelYoutube
+  .panel.panel-default
+    .panel-heading
+      h4 O puedes importar un video desde youtube
+    .panel-body
+      .form-group
+        label Url del video
+        input.form-control(name="urlYoutube", placeholder="")#urlYoutube
+        button.btn.btn-default.js-info-youtube(type="button") Obtener información del video
+        #contenedorInfoYoutube
+        #sliderYoutube
           
          

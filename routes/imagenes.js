@@ -20,7 +20,7 @@ router.get('/', function(req, res, next) {
         var desde = ( pagina - 1) * TAM_PAGINA;
         async.parallel( [
             function ( done ) {
-                db.find({}).limit(TAM_PAGINA).skip(desde).sort( { nombre: -1 }).exec( done );
+                db.find({}).limit(TAM_PAGINA).skip(desde).sort( { fecha: -1 }).exec( done );
             },
             function ( done ) {
                 db.count({}).exec( done );
@@ -35,7 +35,8 @@ router.get('/', function(req, res, next) {
                         totalRegistros: totalRegistros,
                         totalPaginas: totalPaginas,
                         pagina: pagina,
-                        imagenes: resultados[0]
+                        imagenes: resultados[0],
+                        slug: 'i'
                     });
                 }
         });
@@ -62,4 +63,34 @@ router.get('/detalles/:id', function ( req, res, next ) {
     });
 });
 
+router.get('/desdevideo/:idvideo', function (req, res, next ) {
+    db.loadDatabase();
+    dbVideos.loadDatabase();
+    var idVideo = req.params.idvideo;
+    var pagina = req.query.pagina || 1;
+    var desde = ( parseInt ( pagina ) - 1 ) * TAM_PAGINA;
+    async.parallel([
+        function (done ) {
+            db.find( { idVideo: idVideo }).limit(TAM_PAGINA).skip(desde).exec(done);
+        },
+        function ( done ) {
+            db.count( { idVideo: idVideo }).exec( done );
+        }
+        ], function (err, resultados ) {
+            if ( err ) {
+                return next (err);
+            } else {
+                var totalRegistros = resultados[1];
+                var totalPaginas = Math.ceil ( totalRegistros / TAM_PAGINA );
+                res.render('imagenes', {
+                    totalRegistros: totalRegistros,
+                    totalPaginas: totalPaginas,
+                    pagina: pagina,
+                    imagenes: resultados[0],
+                    slug: 'i/desdevideo/' + idVideo
+                });
+
+            }
+    });
+})
 module.exports = router;

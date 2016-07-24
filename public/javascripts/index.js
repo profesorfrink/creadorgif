@@ -12,11 +12,86 @@ $(document).ready( function () {
     var templateVideoPreview = Handlebars.compile( $('#tplVideoPreview').html() );
     var templateSubtitulos = Handlebars.compile( $('#tplSubtitulosSrt').html() );
     var templateImage = Handlebars.compile( $('#tplImagen').html() );
+    var templateYoutube = Handlebars.compile( $('#tplInfoYoutube').html() );
     var $video;
     var $hdnWatermark = $('#hdnWatermark');
     var $espere = $('.espere');
     // var $galeria = $('#galeria');
     var $botonCrear = $('.js-crear-gif');
+    var $contenedorVideo = $('#contenedorVideo');
+    var $contenedorPreview = $('#contenedorPreview');
+    var $contenedorForms = $('.contenedor-forms');
+    var $forms = $('form');
+    var $spanDesde = $('#desde');
+    var $spanHasta = $('#hasta');
+    var $btnInfoYoutube = $('.js-info-youtube');
+    var $urlYotube =$('#urlYoutube');
+    var $contenedorInfoYoutube = $('#contenedorInfoYoutube');
+    
+    var onVideoSubido = function ( responseText ) {
+        $contenedorVideo.find('.espere').addClass('hidden');
+        var $details = $('.dz-details');
+        var datosRender = {
+            filename: responseText.nombre,
+            metadata: responseText.metadata,
+            snapshot: responseText.screenshot,
+            src: responseText.nombre,
+            id: responseText._id
+        };
+        var render = templateVideo( datosRender);
+        $contenedorVideo.html(render);
+
+        //var renderPreview = templateVideoPreview(datosRender);
+        //$('#contenedorPreview').html( renderPreview );
+
+        $video = $(render);
+        var max = parseFloat(responseText.metadata.duration);
+
+        $spanDesde.text(0);
+        $spanHasta.text(max);
+
+        $contenedorVideo.find('#rangeSlider').rangeSlider({ 
+            defaultValues: { 
+                min: 0, 
+                max: max
+            },
+            bounds: {
+                min: 0,
+                max: max
+            },
+            step: 0.005,
+            formatter: function(val){
+                        var value = moment( new Date ).startOf('day').add( val, 'seconds').format('H:mm:ss.SSS');
+                        return value;
+                        
+                }
+         }).bind("valuesChanged", function(e, data){
+            var $videoPrincipal = $($contenedorVideo.find('video')[0]);
+            var videoPrincipal = $contenedorVideo.find('video')[0];
+            var t = '#t='+ data.values.min +',' +  data.values.max;
+            var datosPreview = {
+                id: $videoPrincipal.attr('id'),
+                src: $videoPrincipal.find('source')[0].src + t,
+                snapshot: $videoPrincipal.attr('poster')
+            };
+            // var renderpreview = templateVideoPreview( datosPreview );
+            // $contenedorPreview.html(renderpreview);
+            $videoPrincipal.find('source').attr('src', t);
+            var videoPreview = $contenedorPreview.find('video')[0];
+            videoPrincipal.addEventListener('timeupdate', chequearLimitesVideo, false );
+            $spanDesde.text(parseFloat(data.values.min).toFixed(3));
+            $spanHasta.text(parseFloat(data.values.max).toFixed(3));
+
+            });
+            
+        $contenedorVideo.find('.js-crear-gif').removeClass('disabled');
+        // var videoPrincipal = $contenedorVideo.find('video')[0];
+        // videoPrincipal.addEventListener('timeupdate', chequearLimitesVideo, false );
+        $forms.hide();
+        var valoresDefecto = $contenedorVideo.find('#rangeSlider').rangeSlider('values');
+        $contenedorVideo.find('#rangeSlider').rangeSlider('values', 0.000001, valoresDefecto.max);
+        
+    };
 
     Dropzone.options.uploaderwm = {
         paramName: "file", // El nombre que se usará como parametro para transferir el archivo
@@ -73,19 +148,23 @@ $(document).ready( function () {
             dictRemoveFile: "Borrar",
             dictDefaultMessage: "Arrastre un video aquí o haga click para seleccionar (Tamaño máximo 10MB)",
             sending: function(file, xhr, formData){
-                $espere.removeClass('hidden');
+                $('.espere-procesando').removeClass('hidden');
                 formData.append('watermark', $hdnWatermark.val() );
+                formData.append('ubicacionWM', $('#ubicacionWM').val() );
             },
 
             init: function() {
                 this.on("sending", function(file) {
                   // $botonEnviar.prop('disabled', true);
+                  $('.contenedor-forms').hide();
+                  $contenedorVideo.find('.espere').removeClass('hidden');
 
                 });
 
                 this.on( 'complete', function (file, par2){
                   // debugger;
                   // $botonEnviar.prop('disabled', false );
+                  $('.espere-procesando').addClass('hidden');
                 }),
 
                 
@@ -99,60 +178,7 @@ $(document).ready( function () {
 
                 this.on("success", function(file, responseText) { 
                   //alert("Success.");
-                    $espere.addClass('hidden');
-                    var $details = $('.dz-details');
-                    var datosRender = {
-                        filename: responseText.nombre,
-                        metadata: responseText.metadata,
-                        snapshot: responseText.screenshot,
-                        src: responseText.nombre,
-                        id: responseText._id
-                    };
-                    var render = templateVideo( datosRender);
-                    $('#contenedorVideo').html(render);
-
-                    //var renderPreview = templateVideoPreview(datosRender);
-                    //$('#contenedorPreview').html( renderPreview );
-
-                    $video = $(render);
-                    var max = parseFloat(responseText.metadata.duration);
-
-                    $('#desde').text(0);
-                    $('#hasta').text(max);
-
-                    $('#rangeSlider').rangeSlider({ 
-                        defaultValues: { 
-                            min: 0, 
-                            max: max
-                        },
-                        bounds: {
-                            min: 0,
-                            max: max
-                        },
-                        step: 0.005,
-                        formatter: function(val){
-                                    var value = moment( new Date ).startOf('day').add( val, 'seconds').format('H:mm:ss.SSS');
-                                    return value;
-                                    
-                            }
-                     }).bind("valuesChanged", function(e, data){
-                        var $videoPrincipal = $('#contenedorVideo').find('video');
-                        var t = '#t='+ data.values.min +',' +  data.values.max;
-                        var datosPreview = {
-                            id: $videoPrincipal.attr('id'),
-                            src: $videoPrincipal.find('source')[0].src + t,
-                            snapshot: $videoPrincipal.attr('poster')
-                        };
-                        var renderpreview = templateVideoPreview( datosPreview );
-                        $('#contenedorPreview').html(renderpreview);
-
-                        var videoPreview = $('#contenedorPreview').find('video')[0];
-                        videoPreview.addEventListener('timeupdate', chequearLimitesVideo, false );
-                        $('#desde').text(parseFloat(data.values.min).toFixed(3));
-                        $('#hasta').text(parseFloat(data.values.max).toFixed(3));
-                        });
-
-                    $botonCrear.removeClass('disabled');
+                    onVideoSubido( responseText );
                 });
 
             // Using a closure.
@@ -160,31 +186,36 @@ $(document).ready( function () {
           }
           };
 
+        
         function chequearLimitesVideo () {
-            var video = $('#contenedorPreview').find('video')[0];
+            var video = this;
             var tiempos = $(video).find('source')[0].src.split('#t=')[1].split(',');
             var desde = parseFloat ( tiempos[0] );
             var hasta = parseFloat ( tiempos[1] );
-            $('#tiempoActual').text( moment( new Date ).startOf('day').add( video.currentTime, 'seconds').format('H:mm:ss.SSS') );
+            $contenedorVideo.find('#tiempoActual').text( moment( new Date ).startOf('day').add( video.currentTime, 'seconds').format('H:mm:ss.SSS') );
             if ( video.currentTime > hasta ) {
+                video.currentTime = hasta;
+                video.pause();
+            }
+            if ( video.currentTime < desde ) {
                 video.currentTime = desde;
                 video.pause();
             }
 
+
         }
-        $('#contenedorPreview').on('click', '.js-reproducir-preview', function (e){
+        
+        $contenedorPreview.on('click', '.js-reproducir-preview', function (e){
             e.preventDefault();
             var $video = $('#contenedorPreview').find('video')[0];
             $video.play();
-        });
-
-        $('#contenedorPreview').on('click', '.js-pausar-preview', function (e){
+        }).on('click', '.js-pausar-preview', function (e){
             e.preventDefault();
-            var $video = $('#contenedorPreview').find('video')[0];
+            var $video = $contenedorPreview.find('video')[0];
             $video.pause();
         });
 
-        $('body').on( 'click', '.js-crear-gif', function ( e ) {
+        $contenedorVideo.on( 'click', '.js-crear-gif', function ( e ) {
             e.preventDefault();
             var $target = $(e.currentTarget);
 
@@ -192,22 +223,24 @@ $(document).ready( function () {
 
             var subtitulos = [];
             var subtitulo = {
-                desde: moment( new Date ).startOf('day').add( $('#desde').text( ), 'seconds').format('H:mm:ss.SSS'),
-                hasta: moment( new Date ).startOf('day').add( $('#hasta').text( ), 'seconds').format('H:mm:ss.SSS'),
+                desde: moment( new Date ).startOf('day').add( $spanDesde.text( ), 'seconds').format('H:mm:ss.SSS'),
+                hasta: moment( new Date ).startOf('day').add( $spanHasta.text( ), 'seconds').format('H:mm:ss.SSS'),
                 texto: $('#texto').val(),
                 color: 'yellow'
             };
             subtitulos.push( subtitulo );
             var textoSubtitulos = templateSubtitulos( { subtitulos: subtitulos });
-           
+            var valoresDefecto = $contenedorVideo.find('#rangeSlider').rangeSlider('values');
             var datos = {
-                desde : parseInt( $('#desde').text( ) ),
-                hasta : parseInt( $('#hasta').text() ),
+                desde : parseFloat( valoresDefecto.min ),
+                hasta : parseFloat( valoresDefecto.max ),
                 filename : $video.attr('id'),
                 texto: '',
                 subtitulos: textoSubtitulos,
                 idVideo: $video.attr('id'),
-                watermark: $hdnWatermark.val()
+                watermark: $hdnWatermark.val(),
+                ubicacionWM: $('#ubicacionWM').val(),
+                userKey: $('#hdnUserKey').val()
             };
 
             
@@ -217,11 +250,12 @@ $(document).ready( function () {
                 data: datos
             })
             .done(function() {
-                $botonCrear.addClass('disabled');
+                $contenedorVideo.find('.js-crear-gif').addClass('disabled');
                 Dropzone.forElement("#uploader").removeAllFiles(true);
-                $('#contenedorVideo').html('');
-                $('#contenedorPreview').html('');
-                swal("Se ha comenzado con el proceso del video", "Cuando termine estará disponible en la lista de imágenes creadas", "success")
+                $contenedorVideo.html('');
+                $contenedorPreview.html('');
+                swal("Se ha comenzado con el proceso del video", "Cuando termine estará disponible en la lista de imágenes creadas", "success");
+                $forms.show();
             })
             .fail(function( event, jqxhr, settings ) {
                 sweetAlert('Se produjo un error', event.responseText, 'error');
@@ -229,9 +263,60 @@ $(document).ready( function () {
             .always(function() {
                 console.log("complete");
             });
-            
-
         });
+    $btnInfoYoutube.on('click', function (e) {
+        e.preventDefault();
+        $('.espere-procesando').removeClass('hidden');
+        $.ajax({
+            url: '/infoyoutube',
+            type: 'GET',
+            data: { 
+                urlVideo: $urlYotube.val()
+            }
+        })
+        .done(function(data) {
+            console.log("success", data);
+            var renderInfo = templateYoutube(data);
+            $contenedorInfoYoutube.html(renderInfo);
+        })
+        .fail(function(err) {
+            console.log("error", err);
+        })
+        .always(function() {
+            $('.espere-procesando').addClass('hidden');
+        });
+        
+    });
+    $contenedorInfoYoutube.on('click', '.js-importar-youtube', function (e) {
+        e.preventDefault();
+        $contenedorForms.addClass('hidden');
+        window.scrollTo(0, 0);
+        $('.espere-procesando').removeClass('hidden');
+        var datos = {
+            urlVideo: $contenedorInfoYoutube.find('#hdnUrlYoutube').val(),
+            format: $contenedorInfoYoutube.find('#slFormat').val(),
+            watermark: $hdnWatermark.val(),
+            ubicacionWM: $('#ubicacionWM').val(),
+            userKey: $('#hdnUserKey').val()
+        };
 
-          
+        $.ajax({
+            url: '/importaryoutube',
+            type: 'POST',
+            data: datos
+        })
+        .done(function(data) {
+            onVideoSubido(data);
+        })
+        .fail(function(err) {
+            console.log("error", err);
+            swal('Error de validación', err.responseText, 'error');
+            $contenedorForms.removeClass('hidden');
+        })
+        .always(function() {
+            $('.espere-procesando').addClass('hidden');
+        });
+        
+    });
+    
 });

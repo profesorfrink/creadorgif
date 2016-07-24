@@ -4,28 +4,20 @@ html
   head
     title Generador de gifs animados
     link(href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css", rel="stylesheet", integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7", crossorigin="anonymous")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/todc-bootstrap/3.3.6-3.3.6/css/bootstrap-theme.css")
     link(href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css", rel="stylesheet", integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1", crossorigin="anonymous")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css")
     block css
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
-    nav.navbar.navbar-inverse.navbar-fixed-top
-      .container-fluid
-        .navbar-header
-          a.navbar-brand(href='/') Generador de gifs animados
-        .container
-            ul.nav.navbar-nav
-              li.active
-                a(href='/') Inicio
-              li
-                a(href='/v') Videos
-              li
-                a(href='/i') Imágenes
-    .container-fluid
+    include includes/navbar
+    .container#contenedorPrincipal
+        input(type="hidden", value="#{userKey}")#hdnUserKey
         block content
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js")
     script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js", integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS", crossorigin="anonymous")
+    
     script(src="/socket.io/socket.io.js")
-    script(src="/javascripts/socketmanager.js")
     block js
+    script(src="/javascripts/socketmanager.js")

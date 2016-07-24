@@ -38,6 +38,8 @@ $(document).ready( function ( ) {
     var $contenedorPreview = $('#contenedorPreview');
     var videoPrincipal = document.getElementById( $video.attr('id') );
 
+    var $zonaSubtitulos = $('#zonaSubtitulos');
+
     videoPrincipal.addEventListener( 'timeupdate', mostarTiempoVideo, false );
     
     Dropzone.options.uploader = {
@@ -80,7 +82,43 @@ $(document).ready( function ( ) {
             var _this = this;
           }
     };
-
+    function cambiarFormatoFecha(fecha) {
+        return moment(fecha, 'HH:mm:ss,SSS').format('H:mm:ss.SSS');
+    }
+    function getColor (texto) {
+        return texto.substring( texto.indexOf('color="') + 7, texto.indexOf('"', 14));
+    }
+    var onCargarPagina = function () {
+        var archSubtitulo = $('#hdnSubtitulo').val() || '';
+        if ( archSubtitulo.trim() !== '' ) {
+            $.ajax({
+                url: '/v/getsub',
+                type: 'POST',
+                data: { sub: archSubtitulo},
+            })
+            .done(function( data ) {
+                var regex = /(<([^>]+)>)/ig
+                var regColor = /<color>(.*?)<\/color>/ig;
+                data.forEach( function (subtitulo ) {
+                    var sub = {
+                        desde: cambiarFormatoFecha( subtitulo.startTime ),
+                        hasta: cambiarFormatoFecha( subtitulo.endTime ),
+                        texto: subtitulo.text.replace(regex, ""),
+                        color: getColor(subtitulo.text)
+                    };
+                    subtitulos.push(sub);
+                });
+                dibujarTemplates();
+            })
+            .fail(function() {
+                console.log("error");
+            })
+            .always(function() {
+                console.log("complete");
+            });
+            
+        }
+    }
     function setVideoPreview () {
         var videoPreview = $('#contenedorPreview').find('video')[0];
         videoPreview.addEventListener('timeupdate', chequearLimitesVideo, false );
@@ -136,13 +174,25 @@ $(document).ready( function ( ) {
         $rangeSlider.rangeSlider('values', valores.min, valorHasta);
     });
 
+    $zonaSubtitulos
+    .on( 'click', '.js-subtitulo-desde', function (e) {
+        e.preventDefault();
+        var $tr = $(e.target).parentsUntil('tbody');
+        var val = $tr.find('.tbl-tiempo-desde').text();
+        $desde.val(val);
+    })
+    .on( 'click', '.js-subtitulo-hasta', function (e) {
+        e.preventDefault();
+        var $tr = $(e.target).parentsUntil('tbody');
+        var val = $tr.find('.tbl-tiempo-hasta').text();
+        $hasta.val(val);
+    });
+
     $contenedorPreview.on('click', '.js-copiar-preview-desde', function (e) {
         e.preventDefault();
         var valor = $contenedorPreview.find('#tiempoPreview').text();
         $desde.val( valor);
-    });
-
-    $contenedorPreview.on('click', '.js-copiar-preview-hasta', function (e) {
+    }).on('click', '.js-copiar-preview-hasta', function (e) {
         e.preventDefault();
         var valor = $contenedorPreview.find('#tiempoPreview').text();
         $hasta.val( valor );
@@ -185,13 +235,37 @@ $(document).ready( function ( ) {
 
     var onClickAgregarSubtitulo = function ( e ) {
         e.preventDefault();
+        var desde = $desde.val();
+        var hasta = $hasta.val();
+        var texto = $texto.val();
+
+        if ( desde.length !== 11 ) {
+            swal('Error', 'Debe establecer el tiempo desde', 'error');
+            return false;
+        }
+
+        if ( hasta.length !== 11 ) {
+            swal('Error', 'Debe establecer el tiempo hasta', 'error');
+            return false;
+        }
+
+        if ( texto.trim() === '' ) {
+            swal('Error', 'El texto no puede estar vacío', 'error');
+            return false;
+        }
+
         var subtitulo = {
-            desde: $desde.val(),
-            hasta: $hasta.val(),
-            texto: $texto.val(),
+            desde: desde,
+            hasta: hasta,
+            texto: texto,
             color: $comboColor.val()
         };
-        var idx = parseInt($botonAgregar.attr('data-index')) || -1;
+        var idx = $botonAgregar.attr('data-index');
+        if ( idx  ) {
+            idx = parseInt(idx);
+        } else {
+            idx = -1;
+        }
 
         if ( idx > - 1 ) {
             subtitulos[idx] = subtitulo;
@@ -300,7 +374,7 @@ $(document).ready( function ( ) {
 
 
 
-    $('#zonaSubtitulos')
+    $zonaSubtitulos
         .on('click', '.js-eliminar-subtitulo', onClickEliminarSubtitulo )
         .on('click', '.js-editar-subtitulo', onClickEditarSubtitulo);
     
@@ -315,7 +389,8 @@ var onClickCrearClip = function ( e ) {
         desde: $('#desde').text(),
         hasta: $('#hasta').text(),
         watermark: $('#hdnWatermark').val(),
-        ubicacion: $('#cboUbicacion').val()
+        ubicacion: $('#cboUbicacion').val(),
+        userKey: $('#hdnUserKey').val()
     };
 
     $.ajax({
@@ -357,9 +432,10 @@ var onClickCrearClip = function ( e ) {
 
     $('.js-generar').click( function (e ) {
         e.preventDefault();
+        var valoresDefecto = $rangeSlider.rangeSlider('values');
         var datos = {
-            desde : parseFloat( $('#desde').text( ) ),
-            hasta : parseFloat( $('#hasta').text() ),
+            desde : parseFloat( valoresDefecto.min ),
+            hasta : parseFloat( valoresDefecto.max ),
             filename : $video.attr('id'),
             texto: '',
             subtitulos: $hdnSubtitulosSrt.val(),
@@ -368,7 +444,8 @@ var onClickCrearClip = function ( e ) {
             compresion: $('#cal-compresion').val(),
             fps: $('#cal-fps').val(),
             watermark: $('#hdnWatermark').val(),
-            ubicacion: $('#cboUbicacion').val()
+            ubicacion: $('#cboUbicacion').val(),
+            userKey: $('#hdnUserKey').val()
         };
 
         
@@ -393,4 +470,5 @@ var onClickCrearClip = function ( e ) {
     $('.js-crear-clip').click( onClickCrearClip );
     var valoresDefecto = $rangeSlider.rangeSlider('values');
     $rangeSlider.rangeSlider('values', 0.000001, valoresDefecto.max);
+    onCargarPagina();
 });
