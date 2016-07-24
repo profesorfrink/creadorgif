@@ -108,7 +108,13 @@ jobs.process('procesar', function (job, done){
                         });
                 },
                 function ( pathScreenshot, done ) {
-                    var subtitulo = path.basename(job.data.options.subtitles) || '';
+                    var subtitulo;
+                    if ( job.data.options.subtitles ) {
+                        subtitulo =  path.basename(job.data.options.subtitles);
+                    } else {
+                        subtitulo = '';
+                    }
+
                     var imagen = {
                         path: job.data.output,
                         nombre: path.basename ( job.data.output ),
