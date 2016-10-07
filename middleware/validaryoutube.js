@@ -22,8 +22,8 @@ exports.validar = function (req, res, next ) {
 
         acumuladorSegundos += parseInt( durationSplit[0] );
 
-        if ( acumuladorSegundos > 180 ) {
-            return res.status(409).json('El video no puede durar más de 3 minutos ');
+        if ( acumuladorSegundos > 300 ) {
+            return res.status(409).json('El video no puede durar más de 5 minutos ');
         } else {
             return next();
         }

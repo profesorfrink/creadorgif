@@ -6,6 +6,7 @@ block css
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/jQRangeSlider/5.7.2/css/classic.min.css")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.2.0/introjs.min.css")
     link(rel="stylesheet", href="//cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.1.1/css/bootstrap-slider.min.css")
     
 block content
     .text-center.center-block
@@ -46,13 +47,17 @@ block content
                     .panel-body
                         .form-group
                             label Colores (máximo 255)
-                            input.form-control#cal-colores(type="number", value="128", mim="8", max="255", step="1")
+                            input#cal-colores(type="text", name="cal_colores", class="slider js-cal-colores", data-provide="slider", data-slider-min="1", data-slider-max="255", data-slider-step="1", data-slider-value="80" )
+                            
                         .form-group
-                            label Compresión (0 = no comprime, 100 = máximo)
-                            input.form-control#cal-compresion(type="number", value="40", mim="0", max="100", step="1")
+                            label Compresión (0 = no comprime, 200 = máximo)
+                            input#cal-compresion(type="text", name="cal_compresion", class="slider js-cal-compresion", data-provide="slider", data-slider-min="0", data-slider-max="200", data-slider-step="1", data-slider-value="40" )
                         .form-group
                             label Frames por segundo 
-                            input.form-control#cal-fps(type="number", value="10", mim="1", max="30", step="1")
+                            input#cal-fps(type="text", name="cal_compresion", class="slider js-cal-fps", data-provide="slider", data-slider-min="1", data-slider-max="30", data-slider-step="1", data-slider-value="10" )
+                        .form-group
+                            label Ancho 
+                            input#cal-width(type="text", name="cal_ancho", class="slider js-cal-width", data-provide="slider", data-slider-min="10", data-slider-max="320", data-slider-step="1", data-slider-value="320" )
             .col-xs-12.col-sm-6
                 .form-group
                     label Marca de agua
@@ -90,6 +95,7 @@ block js
     script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.2.0/intro.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.1.1/bootstrap-slider.js")
     script(src="/javascripts/desdevideo.js")
 
     +tplTextoSubtitulos

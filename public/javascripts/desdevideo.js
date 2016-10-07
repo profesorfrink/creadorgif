@@ -445,7 +445,8 @@ var onClickCrearClip = function ( e ) {
             fps: $('#cal-fps').val(),
             watermark: $('#hdnWatermark').val(),
             ubicacion: $('#cboUbicacion').val(),
-            userKey: $('#hdnUserKey').val()
+            userKey: $('#hdnUserKey').val(),
+            width: $('#cal-width').val()
         };
 
         

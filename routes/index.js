@@ -188,9 +188,14 @@ router.post('/generar',  validar.checkDatos, function ( req, res, next ) {
     
     var output = destinoGifs + '/' + uuid.v4() + '.gif';
     var nombreSubtitulo;
-
+    var width;
+    if ( datos.width ) {
+        width = parseInt(datos.width);
+    } else {
+        width = 320;
+    }
     var options = {
-      resize: '320:-1',
+      resize: String(width) + ':-1',
       from: parseFloat(datos.desde),
       to: parseFloat(datos.hasta),
       text: datos.texto,

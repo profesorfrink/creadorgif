@@ -1,30 +1,27 @@
 'use strict';
 var objetos = [];
-var canvasF, canvasFabric;
+var canvasF, canvasFabric, f;
 
-Handlebars.registerHelper('esTexto', function( index ) {
-    if (typeof objetos !== 'undefined') {
-        return objetos[index].tipo === 'texto';
-    }
-  
-});
+
 $(document).ready( function () {
 
     var $video = $('video.js-video-principal');
     var videoPrincipal = document.getElementById( $video.attr('id') );
     var contenedorImagenes = document.getElementById( 'contenedorImagenes');
     var $contenedorImagenes = $('#contenedorImagenes');
+    var $contenedorDialog = $('#contenedorDialog');
     var $modalImagenes = $('#modalImagen');
 
     var imagenesAgregadas = [];
 
-    var tplListaObjetos = Handlebars.compile( $('#tplListaObjetos').html());    
+    var tplListaObjetos = Handlebars.compile( $('#tplListaObjetos').html());
+    var tplDialogPropiedades = Handlebars.compile( $('#tplDialogPropiedades').html());
 
     /**** Comienzo tomar captura****/
     var contadorImagenes = 0;
     var canvas = document.getElementById('canvas');
     var canvasCollage = document.getElementById('canvasCollage');
-    var canvasImagine;
+    
     var ctx = canvas.getContext("2d");
 
     var videoHeight, videoWidth, heightImagen;
@@ -39,15 +36,44 @@ $(document).ready( function () {
     var $color = $panel.find('.js-color');
 
     canvasF = document.getElementById('canvasFabric');
-    var canvasImagine = new imagine.Canvas('canvasCollage');
+
+    var filters = [ 'grayscale', 'invert', 'remove-white', 'sepia', 'sepia2',
+                    'brightness', 'noise', 'gradient-transparency', 'pixelate',
+                    'blur', 'sharpen', 'emboss', 'tint', 'multiply', 'blend'];
 
     canvasFabric = this.__canvas = new fabric.Canvas('canvasFabric', {stateful: false});
-
+    f = fabric.Image.filters;
     canvasFabric.on({
-        'object:selected': selectedObject
+        'object:selected': selectedObject,
+        'selection:cleared': clearedSelection
     });
+    function clearedSelection (e) {
+        if (!e.e) return;
+
+        $contenedorDialog.dialog('destroy');
+    }
     function selectedObject(e) {
+        
+        if ( ! e.e ) return;
+
         var id = canvasFabric.getObjects().indexOf(e.target);
+        //var dialog = tplDialogPropiedades(e.target);
+        $contenedorDialog.html( tplDialogPropiedades(e.target) );
+        $contenedorDialog.find('input.slider').bootstrapSlider()
+        var w = e.target.width;
+        
+        var finObjetoX =  e.target.width + e.target.left;
+
+        var my;
+        if ( finObjetoX > (canvasFabric.width  / 2 )) {
+            my = 'left center';
+        } else {
+            my = 'right center'
+        }
+        
+        $contenedorDialog.dialog({
+            position: { at: my , of : '#canvasFabric' }
+        });
     }
 
     videoPrincipal.addEventListener('loadedmetadata', inicializarMetadata);
@@ -255,12 +281,13 @@ $(document).ready( function () {
             top: top,
             
             fontFamily: $selectFont.val(),
-            fontSize: 28,
-            fontWeight: 'bold',
+            fontSize: parseInt($panel.find('.js-font-size').val()),
+            fontWeight: parseInt($panel.find('.js-font-weight').val()),
             fill: $color.val(),
-            textAlign: 'center',
+            textAlign: $panel.find('.js-label-align').attr('data-align'),
             backgroundColor: 'rgba(0,0,0,0.5)',
-            strokeWidth: Math.floor( parseInt($size.val()) / 16 ),
+            //strokeWidth: Math.floor( parseInt($size.val()) / 16 ),
+            strokeWidth: 1,
             stroke: '#000'
         });
         canvasFabric.add( textFabric );
@@ -399,16 +426,144 @@ $(document).ready( function () {
         
     }).on('click', '.js-clone', onClickClone);
     
-    // window.onkeydown = onKeyDownHandler;
+    function applyFilter(index, filter) {
+        var obj = canvasFabric.getActiveObject();
+        obj.filters[index] = filter;
+        obj.applyFilters(canvasFabric.renderAll.bind(canvasFabric));
+    }
 
-    // function onKeyDownHandler(e) {
-    //     switch (e.keyCode) {
-    //         case 46: // delete
-    //             canvasFabric.getActiveObject().remove();
-    //             return;
-    //     }
-    // }
+    $contenedorDialog.on('change', '.js-slider-opacidad', function (e) {
+        canvasFabric.getActiveObject().set( {
+            opacity: parseFloat( e.value.newValue )
+        });
+        canvasFabric.renderAll();
+    })
+    .on('change', '.js-slider-outline', function(e) {
+        canvasFabric.getActiveObject().set( {
+            strokeWidth: parseFloat( e.value.newValue )
+        });
+        canvasFabric.renderAll();
+    })
+    .on('change', '.js-color', function(e) {
+        var colorNuevo = e.target.value;
+        canvasFabric.getActiveObject().set( {
+            fill: colorNuevo
+        });
+        canvasFabric.renderAll();
+    })
+    .on('click', '.js-clone', function (e) {
+        e.preventDefault();
+        var object = fabric.util.object.clone( canvasFabric.getActiveObject() );
+        //object.set('top', object.top + 5);
+        //object.set('left', object.left + 5);
+        object.set({
+            lockMovementX: false,
+            lockMovementY: false,
+            top: object.top + 5,
+            left: object.left + 5
+        });
+    
+        
+                            
+        canvasFabric.add(object);
+        canvasFabric.renderAll();
+    })
+    .on('click','#grayscale', function(e) {
+        applyFilter(0, this.checked && new f.Grayscale());
+    })
+    .on('click','#invert', function(e) {
+        applyFilter(1, this.checked && new f.Invert());
+    })
+    .on('click','#sepia', function(e) {
+        applyFilter(2, this.checked && new f.Sepia());
+    })
+    .on('click','#sepia2', function(e) {
+        applyFilter(3, this.checked && new f.Sepia2());
+    })
+    .on('click','#emboss', function(e) {
+        applyFilter(11, this.checked && new f.Convolute({
+        matrix: [   1,   1,  1,
+                    1, 0.7, -1,
+                    -1,  -1, -1 ]
+        }));
+    })
+    .on('click','#sharpen', function(e) {
+        applyFilter(10, this.checked && new f.Convolute({
+        matrix: [  0, -1,  0,
+                    -1,  5, -1,
+                    0, -1,  0 ]
+        }));
+    })
+    .on('click','#blur', function(e) {
+        applyFilter(9, this.checked && new f.Convolute({
+        matrix: [ 1/9, 1/9, 1/9,
+                  1/9, 1/9, 1/9,
+                  1/9, 1/9, 1/9 ]
+        }));
+    })
+    .on('click', '.js-cambiar-texto', function (e) {
+        e.preventDefault();
+        var nuevoTexto = $contenedorDialog.find('.js-texto-nuevo').val();
+        canvasFabric.getActiveObject().set({
+            text: nuevoTexto
+        });
+        canvasFabric.renderAll();
+    })
+    .on('click', '.js-align button', function(e) {
+        e.preventDefault();
+        var $target = $(e.currentTarget);
+        canvasFabric.getActiveObject().set({
+            textAlign: $target.attr('data-align')
+        });
+        canvasFabric.renderAll();
+    })
+    .on('change', '.js-font', function(e) {
+        var newFont = e.target.value;
+        canvasFabric.getActiveObject().set({
+            fontFamily: newFont
+        });
+        canvasFabric.renderAll();
 
+    })
+    .on('change', '.js-font-size', function(e) {
+        var newSize = e.target.value;
+        canvasFabric.getActiveObject().set({
+            fontSize: parseInt(newSize)
+        });
+        canvasFabric.renderAll();
+    })
+    .on('change', '.js-font-weight', function(e) {
+        var newWeight = e.target.value;
+        canvasFabric.getActiveObject().set({
+            fontWeight: parseFloat(newWeight)
+        });
+        canvasFabric.renderAll();
+    })
+    .on('change', '.js-line-height', function(e) {
+        var newHeight = e.target.value;
+        canvasFabric.getActiveObject().set({
+            lineHeight: parseFloat(newHeight)
+        });
+        canvasFabric.renderAll();
+    }).on('click', '.js-front', function(e) {
+        e.preventDefault();
+        canvasFabric.bringToFront(canvasFabric.getActiveObject());
+        canvasFabric.renderAll();
+    })
+    .on('click', '.js-back', function(e) {
+        e.preventDefault();
+        canvasFabric.sendToBack(canvasFabric.getActiveObject());
+        canvasFabric.renderAll();
+    });
+    
+    $panel.on('click', '.js-align button', function(e) {
+        e.preventDefault();
+        var $target = $(e.currentTarget);
+        var $label = $panel.find('.js-label-align');
+        $label.text( $target.data('label'));
+        $label.attr('data-align', $target.data('align'));
+    });
+    
 
     function dibujarTemplateObjetos() {
         var render = tplListaObjetos( { objetos: canvasFabric.getObjects() });

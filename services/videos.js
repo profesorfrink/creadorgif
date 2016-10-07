@@ -106,8 +106,16 @@ VideoServices.prototype.procesarVideo = function ( datos, callback ) {
             default:
                 break;
         }
+        //console.log('datos', datos);
+        var width;
+        if ( datos.width ) {
+            width = parseInt(datos.width);
+        } else {
+            width = 320;
+        }
+        console.log('width ' + width );
         ffmpeg( datos.pathVideo )
-            .size('320x?')
+            .size( String(width) + 'x?')
             .addOptions([
                 '-vf', 'movie='+ pathWatermark + ' [watermark]; [in] [watermark] ' + wm + ' [out]',
                 '-strict -2'

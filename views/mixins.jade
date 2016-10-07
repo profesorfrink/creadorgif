@@ -102,7 +102,7 @@ mixin formSubtitulos
                     label Color
                     select.form-control#slSubtitulos
                         option(value="yellow") Amarillo
-                        option(value="blanco") Blanco
+                        option(value="white") Blanco
                         option(value="orange") Naranja
                         option(value="pink") Rosa
                 .form-group
@@ -118,11 +118,34 @@ mixin paneltextocanvas
                 .form-group
                     label Texto
                     textarea.form-control.js-texto(rows="3")
+                .form-group
+                    label Alineación
+                    .btn-group.js-align
+                        button(type="button", class="btn btn-default", data-align="center", data-label="Centrado") <i class="fa fa-align-center"></i>
+                        button(type="button", class="btn btn-default", data-align="left", data-label="Izquierda") <i class="fa fa-align-left"></i>
+                        button(type="button", class="btn btn-default", data-align="right", data-label="Derecha") <i class="fa fa-align-right"></i>
+                        button(type="button", class="btn btn-default", data-align="justify", data-label="Justificado") <i class="fa fa-align-justify"></i>
+                    span.label.label-default.js-label-align(data-align="center") Centrado
+                .form-group
+                    div(style="font-family: 'impact', sans-serif; ") Impact
+                    div(style="font-family: 'Arial', sans-serif; ") Arial
+                    div(style="font-family: 'OpenSans', sans-serif; ") Open Sans
+                    div(style="font-family: 'Simpsons', sans-serif; ") Simpsons
+                .form-group
+                    label Alto linea
+                    input(type="text", name="font_weight", class="slider js-line-height", data-provide="slider", data-slider-min="0.5", data-slider-max="3", data-slider-step="0.01", data-slider-value="1.16" )
+                .form-group
+                    label Tamaño
+                    input(type="text", name="tam_font", class="slider js-font-size", data-provide="slider", data-slider-min="1", data-slider-max="48", data-slider-step="1", data-slider-value="28" )
+                .form-group
+                    label Peso
+                    input(type="text", name="font_weight", class="slider js-font-weight", data-provide="slider", data-slider-min="100", data-slider-max="800", data-slider-step="100", data-slider-value="400" )
+                                        
             .col-xs-6
                 .form-group
                     label Fuente
                     select.form-control.js-font
-                        option(value="Oswald") Oswald
+                        option(value="impact") Impact
                         option(value="Arial") Arial
                         option(value="Times New Roman") Times New Roman
                         option(value="Open Sans") Open Sans
@@ -134,7 +157,8 @@ mixin paneltextocanvas
             .col-xs-6
                 .form-group
                     label Color
-                    select.form-control.js-color
+                    input(type="color", value="#fffb00").form-control.js-color
+                    //- select.form-control.js-color
                         option(value="yellow") Amarillo
                         option(value="white") Blanco
                         option(value="orange") Naranja

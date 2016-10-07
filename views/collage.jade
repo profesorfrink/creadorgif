@@ -4,6 +4,8 @@ block css
     link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Oswald:400,700", type='text/css')
     link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Open+Sans:400,700", type='text/css')
     link(rel="stylesheet", href="//cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.1.1/css/bootstrap-slider.min.css")
+    link(rel="stylesheet", href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css")
 
 block content
     .row.video
@@ -42,7 +44,7 @@ block content
             canvas#canvasCollage.hidden(widht="640px", height="240px")
             canvas#canvasFabric(style="width: 100%;")
             img#imgResultado.hidden
-
+    #contenedorDialog(title="Propiedades del objeto", class="dialog-prop")
     .modal.fade#modalImagen
         .modal-dialog
             .modal-content
@@ -68,6 +70,129 @@ block js
     script(src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.6.3/fabric.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js")
-    script(src="/javascripts/imagine.js")
+    script(src="https://code.jquery.com/ui/1.12.0/jquery-ui.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.1.1/bootstrap-slider.js")
+    script(src="/javascripts/helpershb.js")
+    
     +tablaObjetos
     script(src="/javascripts/collage.js")
+    script(type="text/template")#tplDialogPropiedades.
+        <div>
+            {{#if text }}
+                   
+                <div class="form-group">
+                    <textarea class="form-control js-texto-nuevo" placeholder="Nuevo texto">{{text}}</textarea>
+                    <button class="btn btn-default btn-block js-cambiar-texto" type="button">Cambiar</button>
+                </div>
+                <div class="form-group">
+                    <label>Fuente</label>
+                    <select class="form-control js-font">
+                        <option value="impact">Impact</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Open Sans">Open Sans</option>
+                        <option value="Simpsons">Simpsons</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <div class="btn-group js-align">
+                        <button type="button" data-align="center" data-label="Centrado" class="btn btn-default"><i class="fa fa-align-center"></i></button>
+                        <button type="button" data-align="left" data-label="Izquierda" class="btn btn-default"><i class="fa fa-align-left"></i></button>
+                        <button type="button" data-align="right" data-label="Derecha" class="btn btn-default"><i class="fa fa-align-right"></i></button>
+                        <button type="button" data-align="justify" data-label="Justificado" class="btn btn-default"><i class="fa fa-align-justify"></i></button>
+                    </div>    
+                </div>
+                <div class="form-group">
+                    <label>Alto linea</label>
+                    <input type="text" name="line_height" data-provide="slider" data-slider-min="0.5" data-slider-max="3" data-slider-step="0.01" data-slider-value="1.16" class="slider js-line-height"/>
+                </div>
+                <div class="form-group">
+                    <label>Tamaño</label>
+                    <input type="text" name="tam_font" data-provide="slider" data-slider-min="1" data-slider-max="48" data-slider-step="1" data-slider-value="{{fontSize}}" class="slider js-font-size"/>
+                </div>
+                <div class="form-group">
+                    <label>Peso</label>
+                    <input type="text" name="font_weight" data-provide="slider" data-slider-min="100" data-slider-max="800" data-slider-step="100" data-slider-value="{{fontWeight}}" class="slider js-font-weight"/>
+                </div>
+                <div class="form-group">
+                    <label>Color</label>
+                    <input type="color" value="{{fill}}" class="js-color"></input>
+                </div>
+                <div class="form-group">
+                <label>Ancho del borde</label>
+                    <input
+                        type="text"
+                        name="somename"
+                        class="slider js-slider-outline"
+                        data-provide="slider"
+                        data-slider-min="0"
+                        data-slider-max="3"
+                        data-slider-step="0.01"
+                        data-slider-value="{{strokeWidth}}"
+                    >
+                </div>
+            {{else}}
+                <div class="form-group">
+                    <img src="{{_element.src}}" style="width: 64px; max-width: 64px;">
+                </div>
+                <label>Efectos</label>
+                <table class="table">
+                    <tr>
+                        <td>
+                            <span>Escala de grises</span>
+                            <input type="checkbox" id="grayscale" {{tieneFiltro this 0 }}>
+                        </td>
+                        <td>
+                            <span>Sepia</span>
+                            <input type="checkbox" id="sepia" {{tieneFiltro this 2 }}>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span>Alto relieve</span>
+                            <input type="checkbox" id="emboss" {{tieneFiltro this 11 }}>
+                        </td>
+                        <td>
+                            <span>Invertir</span>
+                            <input type="checkbox" id="invert" {{tieneFiltro this 1 }} >
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span>Sepia 2</span>
+                            <input type="checkbox" id="sepia2" {{tieneFiltro this 3 }}>
+                        </td>
+                        <td>
+                            <span>Blur</span>
+                            <input type="checkbox" id="blur" {{tieneFiltro this 9 }}>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span>Punteado</span>
+                            <input type="checkbox" id="sharpen" {{tieneFiltro this 10 }}>
+                        </td>
+                        <td>
+                            
+                        </td>
+                    </tr>
+                </table>
+            {{/if}}
+            <div class="form-group">
+                <label>Opacidad</label>
+                <input
+                    type="text"
+                    name="somename"
+                    class="slider js-slider-opacidad"
+                    data-provide="slider"
+                    data-slider-min="0"
+                    data-slider-max="1"
+                    data-slider-step="0.01"
+                    data-slider-value="{{opacity}}"
+                >
+            </div>
+            <button class="btn btn-primary btn-xs js-clone" title="Clonar"><i class="fa fa-clone"></i></button>
+            <button class="btn btn-danger btn-xs js-eliminar" title="Borrar"><i class="fa fa-remove"></i></button>
+            <button class="btn btn-danger btn-xs js-front" title="Traer al frente"><i class="fa fa-caret-square-o-up"></i></button>
+            <button class="btn btn-danger btn-xs js-back" title="Enviar al fondo"><i class="fa fa-caret-square-o-down"></i></button>
+        </div>

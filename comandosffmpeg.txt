@@ -1,0 +1,5 @@
+
+//Agregar un cuadrado negro abajo para facilitar lectura de subtitulos 
+// en este caso el los parametros van luego de drawbox=
+// en este caso dibuja un cuadrado desde y=200 hasta y=250
+ffmpeg -i in.mp4 -vf drawbox=0:200:0:50:black@1:t=max out.mp4
