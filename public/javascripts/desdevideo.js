@@ -11,6 +11,8 @@ Handlebars.registerHelper('serializar', function ( subtitulo, idx ) {
     subtitulo.idx = idx;
     return JSON.stringify( subtitulo );
 });
+
+
 $(document).ready( function ( ) {
    
     var fin = parseInt($('#hasta').text());
@@ -351,6 +353,11 @@ $(document).ready( function ( ) {
         $hdnSubtitulos.val( textoSubtitulos );
         var textoSubtitulosSrt = templateSubtitulosSrt( { subtitulos: subtitulos });
         $hdnSubtitulosSrt.val(textoSubtitulosSrt);
+        $('#tabla-subtitulos').DataTable({
+            'language': {
+                'url': '//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json'
+            }
+        });
     }
 
     var onClickEliminarSubtitulo = function ( e ) {

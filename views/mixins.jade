@@ -49,7 +49,7 @@ mixin tplSubtitulosSrt
         {{/each}}
 mixin tplTablaSubtitulos
     script(type="x-handlebars")#tplListaSubtitulos.
-        <table class="table table-stripped">
+        <table class="table table-stripped" id="tabla-subtitulos">
             <thead>
                 <tr>
                     <th>Desde</th>
@@ -58,11 +58,11 @@ mixin tplTablaSubtitulos
                     <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="list">
                 {{#each subtitulos}}
                     <tr class="fila" data-desde="{{desde}}" data-hasta="{{hasta}}" data-texto="texto" data-color="{{color}}" data-index="{{@index}}">
                         <td>
-                            <input type="hidden" class="serialized" value="{{serializar this @index}}" />
+                            <input type="hidden" class="serialized " value="{{serializar this @index}}" />
                             <span class="tiempo-subtitulo label label-primary tbl-tiempo tbl-tiempo-desde">{{desde}}</span>
                             <button class="btn btn-xs btn-primary js-subtitulo-desde" title="Copiar en subtítulo desde"><i class="fa fa-outdent" aria-hidden="true"></i></button>
                             <button class="btn btn-xs btn-primary js-subtitulo-hasta" title="Copiar en subtítulo hasta"><i class="fa fa-indent" aria-hidden="true"></i></button>

@@ -6,6 +6,7 @@ block css
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/jQRangeSlider/5.7.2/css/classic.min.css")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.2.0/introjs.min.css")
     link(rel="stylesheet", href="//cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/css/dataTables.bootstrap.min.css")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.1.1/css/bootstrap-slider.min.css")
     
 block content
@@ -83,6 +84,8 @@ block content
                 +formSubtitulos
             #contenedorSubtitulos
             input(type="hidden")#hdnSubtitulosSrt
+            ul.list-unstyled#listaSubtitulos
+
 
 block js
     
@@ -96,6 +99,8 @@ block js
     script(src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.2.0/intro.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.1.1/bootstrap-slider.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/jquery.dataTables.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/dataTables.bootstrap.min.js")
     script(src="/javascripts/desdevideo.js")
 
     +tplTextoSubtitulos

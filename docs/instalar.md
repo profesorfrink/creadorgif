@@ -60,7 +60,7 @@ En caso de solicitarnos alguna confirmación, seguimos con la opción por defect
     pm2 start app.js
     pm2 start jobs/index.js
     
-10- Con esto ya deberíamos ver la web desde ip.nuestro.vps:3000, sin embargo recomendaría lo siguiente
+10- Con esto ya deberíamos ver la web desde ip.nuestro.vps:3002, sin embargo recomendaría lo siguiente
 
 
 RECOMENDACIONES
@@ -88,7 +88,7 @@ Este es el contenido que hay que pegar en el archivo default
 
     location / {
         client_max_body_size 10M;
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3002;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';

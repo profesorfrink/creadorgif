@@ -4,6 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var helmet = require('helmet');
 var kue = require('kue');
 
 var session = require('express-session');
@@ -31,7 +32,7 @@ var dbVideos = new nedb({
     filename: path.join( __dirname, 'db/videos.db'), 
 });
 
-const SECRETSESSION =  'njasodjoia dñohaopdihpsnmn jkhdaf ipuòi83748913247/*';
+const SECRETSESSION =  'njasodjoia dñohaopdihpCBmn jkhdafT`Pó ipuòi83748913247/*';
 const SECRETCOOKIE = 'pokdadjoi fv  jklalda123+-%&/';
 const COOKIEKEY = 'sessId';
 
@@ -62,6 +63,7 @@ app.use('/', routes);
 app.use('/v', videos);
 app.use('/i', imagenes);
 app.use('/g', giphy);
+app.use( helmet() );
 
 kue.app.set('title', 'Jobs');
 var subApp = express();
@@ -136,6 +138,6 @@ app.on('clipCreado', function ( pathVideo, ipUsuario ) {
     });
 });
 
-http.listen(3000, function(){
-  console.log('listening on *:3000');
+http.listen( 3002, function(){
+  console.log('listening on *:3002');
 });
