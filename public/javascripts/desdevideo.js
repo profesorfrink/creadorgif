@@ -370,11 +370,12 @@ $(document).ready( function ( ) {
         var textoSubtitulosSrt = templateSubtitulosSrt( { subtitulos: subtitulos });
         $hdnSubtitulosSrt.val(textoSubtitulosSrt);
         
-        $('#tabla-subtitulos').DataTable({
+        var oTable = $('#tabla-subtitulos').DataTable({
             'language': {
                 'url': '//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json'
             }
         });
+        oTable.page( 'last' ).draw( 'page' );
     }
 
     var onClickEliminarSubtitulo = function ( e ) {
