@@ -63,8 +63,7 @@ $(document).ready( function () {
           ListPagination({})
         ]
     };
-
-    listaActivos = new List('panelActivos', optionsList );
+    if ( $('#assetsList li').length > 0 ) listaActivos = new List('panelActivos', optionsList );
     
     $panelActivos.on('click', '.js-agregar-imagen', function (e) {
         e.preventDefault();
