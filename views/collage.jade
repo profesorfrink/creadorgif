@@ -39,8 +39,10 @@ block content
             
             h Resultado collage
             p.text-center.center-block#accionesImagen
-                button.btn.btn-primary.js-guardar(title="Descargar una copia del collage") Guardar imagen
-                button.btn.btn-success(data-toggle="modal", data-target="#modalImagen", title="Subir una imagen al collage") Subir imagen
+                button.btn.btn-primary.js-guardar(title="Descargar una copia del collage") <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                button.btn.btn-success(data-toggle="modal", data-target="#modalImagen", title="Subir una imagen al collage") <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+                button.btn.btn-info.js-mostrar-propiedades(title="Mostrar cuadro de propiedades") <i class="fa fa-sort-amount-desc" aria-hidden="true"></i>
+                button.btn.btn-warning.js-mostrar-activos(title="Mostrar cuadro de activos") <i class="fa fa-folder-open" aria-hidden="true"></i>
             canvas#canvasCollage.hidden(widht="640px", height="240px")
             canvas#canvasFabric(style="width: 100%;")
             img#imgResultado.hidden

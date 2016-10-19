@@ -672,9 +672,41 @@ $(document).ready( function () {
     $contenedorImagenes.on("render", function() {
         // dibujarTemplateObjetos();
     });
+
+    var onClickCuadroActivos = function (e) {
+        e.preventDefault();
+        $panelActivos.dialog({
+            width: '30%',
+            maxWidth: "500px"
+        });
+        $panelActivos.show();
+    }
+    var onClickMostrarPropiedades = function (e) {
+        e.preventDefault();
+        var obj = canvasFabric.getActiveObject()
+        if ( !obj ) {
+            alert('Debe seleccionar un item');
+            return false;
+        }
+        $contenedorDialog.html( tplDialogPropiedades( obj ) );
+        $contenedorDialog.find('input.slider').bootstrapSlider()
+        
+        
+        $contenedorDialog.dialog({
+            position: {
+               my: "left",
+               at: "center",
+               of: window
+            }
+        });
+    
+        $contenedorDialog.show();
+    }
     $('.js-generar-collage').click( onClickGenerarCollage);
     $('.js-agregar-texto').click( onClickAgregarTexto );
     $('.js-guardar').click( onClickGuardarImagen);
+    $('.js-mostrar-propiedades').click( onClickMostrarPropiedades);
+    $('.js-mostrar-activos').click( onClickCuadroActivos);
     $('.js-usar-imagen').click( onClickSeleccionarImagen);
     
 });
