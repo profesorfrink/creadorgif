@@ -100,11 +100,7 @@ mixin formSubtitulos
                     input.form-control.js-texto(type="text", placeholder="Texto del subtitulo")
                 .form-group
                     label Color
-                    select.form-control#slSubtitulos
-                        option(value="yellow") Amarillo
-                        option(value="white") Blanco
-                        option(value="orange") Naranja
-                        option(value="pink") Rosa
+                    input.form-control(type="color", value="#FFFFFF")#colorSubtitulo
                 .form-group
                     .text-center
                         button.btn.btn-primary.js-agregar-subtitulo Agregar linea

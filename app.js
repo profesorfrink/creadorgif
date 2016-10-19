@@ -108,9 +108,9 @@ if (app.get('env') === 'development') {
       error: err
     });
   });
-} else {
   app.enable('trust proxy');
-}
+} 
+
 
 // production error handler
 // no stacktraces leaked to user

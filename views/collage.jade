@@ -20,7 +20,7 @@ block content
                     button.btn.btn-info.btn-xs.js-snapshot Tomar captura para collage
         .col-xs-12.col-sm-12.col-md-7    
             .row(style="margin-top: 1em;")
-                #contenedorImagenes
+                #contenedorImagenes.sortable(title="Arrastre una imagen para cambiar el orden o haga click con la ruedita del mouse para elimiar un cuadro")
             
                 
             .row.text-center(style="margin: 1em;")
@@ -38,12 +38,26 @@ block content
         .col-xs-12.col-md-8
             
             h Resultado collage
-            p.text-center.center-block
-                button.btn.btn-primary.js-guardar Guardar imagen
-                button.btn.btn-success(data-toggle="modal", data-target="#modalImagen") Subir imagen
+            p.text-center.center-block#accionesImagen
+                button.btn.btn-primary.js-guardar(title="Descargar una copia del collage") Guardar imagen
+                button.btn.btn-success(data-toggle="modal", data-target="#modalImagen", title="Subir una imagen al collage") Subir imagen
             canvas#canvasCollage.hidden(widht="640px", height="240px")
             canvas#canvasFabric(style="width: 100%;")
             img#imgResultado.hidden
+    .row
+        .col-xs-12.col-sm-6
+            .panel#panelActivos(title="Lista de activos")
+                .panel-heading
+                .panel-body(style="background-color: #CCC;")
+                    ul.list-unstyled#assetsList.list
+                        each asset in assets
+                            li.col-xs-4
+                                img.img-responsive(src="#{asset.thumbData}", data-src="/images/#{asset.filename}", style="min-width: 50px;")
+                                .text-center.center-block
+                                    a.btn.btn-xs.btn-primary.js-agregar-imagen(href="#", data-src="/images/#{asset.filename}") Agregar al collage
+                .panel-bottom
+                    .text-center.center-block
+                        ul.pagination
     #contenedorDialog(title="Propiedades del objeto", class="dialog-prop")
     .modal.fade#modalImagen
         .modal-dialog
@@ -72,6 +86,10 @@ block js
     script(src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js")
     script(src="https://code.jquery.com/ui/1.12.0/jquery-ui.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.1.1/bootstrap-slider.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/unveil/1.3.0/jquery.unveil.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.2.0/list.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/list.pagination.js/0.1.1/list.pagination.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.16.4/lodash.min.js")
     script(src="/javascripts/helpershb.js")
     
     +tablaObjetos
@@ -193,6 +211,7 @@ block js
             </div>
             <button class="btn btn-primary btn-xs js-clone" title="Clonar"><i class="fa fa-clone"></i></button>
             <button class="btn btn-danger btn-xs js-eliminar" title="Borrar"><i class="fa fa-remove"></i></button>
-            <button class="btn btn-danger btn-xs js-front" title="Traer al frente"><i class="fa fa-caret-square-o-up"></i></button>
-            <button class="btn btn-danger btn-xs js-back" title="Enviar al fondo"><i class="fa fa-caret-square-o-down"></i></button>
+
+            <button class="btn btn-info btn-xs js-flip-x" title="Volteo horizonal"><i class="glyphicon glyphicon-menu-right"></i></button>
+            <button class="btn btn-success btn-xs js-flip-y" title="Volteo vertical"><i class="glyphicon glyphicon-menu-up"></i></button>
         </div>

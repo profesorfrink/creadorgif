@@ -7,7 +7,8 @@ block content
     div#galeria
         each imagen in imagenes
             a(href="/imagenes/#{imagen._id}")
-                img.animado(alt="<a href='/i/detalles/#{imagen._id}'>Ver más datos</a>", src="/images/#{imagen.screenshot}", data-image="/gifs/#{imagen.nombre}", data-description="<a href='/gifs/#{imagen._id}'>Link</a> ", style="display:none")
+                img.animado(alt="<a href='/i/detalles/#{imagen._id}' class='btn btn-primary'>Ver más datos</a><a href='/v/desde/#{imagen.idVideo}?imagen=#{imagen._id}' class='btn btn-primary'>Crear uno similar</a>", src="/images/#{imagen.screenshot}", data-image="/gifs/#{imagen.nombre}", data-description="<a href='/gifs/#{imagen._id}'>Link</a> ", style="display:none")
+
         else
             h1.jumbotron.text-center.center-block No hay imágenes para mostrar
 

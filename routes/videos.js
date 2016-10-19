@@ -22,6 +22,10 @@ var dbVideos = new nedb({
 var dbImagenes = new nedb({
     filename: path.join( __dirname, '../db/imagenes.db'), 
 });
+
+var dbAssets = new nedb({
+  filename: paths.dbAssets
+});
 /* GET users listing. */
 router.get('/', function(req, res, next) {
     dbVideos.loadDatabase();
@@ -103,30 +107,61 @@ router.get('/collage/:id', function ( req, res, next ) {
   // res.header("Access-Control-Allow-Origin", "*");
   // res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   dbVideos.loadDatabase();
-  dbVideos.findOne( { _id: req.params.id }).exec( function ( err, video ) {
-    if ( err ) {
-      return next (err);
-    } else {
-      //var duracion = Math.ceil( video.duracion );
-      
-      res.render('collage', {
-        video: video
-      });
+  dbAssets.loadDatabase();
+
+  async.parallel([
+    function ( done ) {
+      dbVideos.findOne( { _id: req.params.id }).exec( done );
+    },
+    function ( done ) {
+      dbAssets.find({}).limit(100).exec( done );
     }
+    ], function ( err, resultados ) {
+      if ( err ) {
+        return next (err);
+      }
+      var video = resultados[0];
+      var assets = resultados[1];
+
+      res.render('collage', {
+        video: video, 
+        assets: assets
+      });
+
   });
+  // dbVideos.findOne( { _id: req.params.id }).exec( function ( err, video ) {
+  //   if ( err ) {
+  //     return next (err);
+  //   } else {
+  //     //var duracion = Math.ceil( video.duracion );
+      
+  //     res.render('collage', {
+  //       video: video
+  //     });
+  //   }
+  // });
 });
 
 
 router.get('/desde/:id', function ( req, res, next ) {
+  
   dbVideos.loadDatabase();
   dbImagenes.loadDatabase();
-
+  dbAssets.loadDatabase();  
+  
   async.parallel([
       function (done) {
         dbVideos.findOne( { _id: req.params.id }).exec( done);
       },
       function (done ) {
-        dbImagenes.findOne( { _id: req.query.imagen }).exec( done );
+
+        var idImagen = req.query.imagen || '';
+        dbImagenes.findOne( { _id: idImagen }).exec( done );        
+        
+      },
+      function ( done ) {
+        dbAssets.find({}).exec( done );
+
       }
     ], function (err, resultados) {
         if (err) {

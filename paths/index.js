@@ -6,6 +6,7 @@ var paths = {
     dbImagenes: path.join( __dirname, '../db/imagenes.db'),
     dbVideos: path.join( __dirname, '../db/videos.db'),
     dbUsers: path.join( __dirname, '../db/users.db'),
+    dbAssets: path.join( __dirname, '../db/assets.db'),
 
     gifs : path.join( __dirname, '../public/gifs/'),
     imagenes : path.join( __dirname, '../public/images/'),

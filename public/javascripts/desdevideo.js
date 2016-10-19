@@ -33,7 +33,7 @@ $(document).ready( function ( ) {
     var $desde = $formSubtitulo.find('.js-desde');
     var $hasta = $formSubtitulo.find('.js-hasta');
     var $texto = $formSubtitulo.find('.js-texto');
-    var $comboColor = $formSubtitulo.find('#slSubtitulos');
+    var $inputColor = $formSubtitulo.find('#colorSubtitulo');
     var $botonAgregar = $formSubtitulo.find('.js-agregar-subtitulo');
     var $hdnSubtitulos = $('.js-subtitulo');
     var $rangeSlider = $("#rangeSlider");
@@ -43,6 +43,22 @@ $(document).ready( function ( ) {
     var $zonaSubtitulos = $('#zonaSubtitulos');
 
     videoPrincipal.addEventListener( 'timeupdate', mostarTiempoVideo, false );
+
+    videoPrincipal.onloadedmetadata = function(metadata) {
+        // console.log('metadata', metadata.srcElement.videoWidth);
+        var tam;
+        if ( metadata.srcElement.videoWidth > 320 ) {
+            tam = 320;
+        } else {
+            tam = metadata.srcElement.videoWidth;
+        }
+        var slider = $('#cal-width').bootstrapSlider({
+            max: metadata.srcElement.videoWidth,
+        });
+
+        slider.bootstrapSlider('setValue', tam );
+
+    };
     
     Dropzone.options.uploader = {
             paramName: "file", // El nombre que se usará como parametro para transferir el archivo
@@ -260,7 +276,7 @@ $(document).ready( function ( ) {
             desde: desde,
             hasta: hasta,
             texto: texto,
-            color: $comboColor.val()
+            color: $inputColor.val()
         };
         var idx = $botonAgregar.attr('data-index');
         if ( idx  ) {
@@ -277,7 +293,7 @@ $(document).ready( function ( ) {
         }
         
         dibujarTemplates();
-        $formSubtitulo.find('input').val('');
+        $formSubtitulo.find('input:text').val('');
         $desde.val( subtitulo.hasta );
         $desde.focus();
         agregarSubtitulosVideo();
@@ -353,6 +369,7 @@ $(document).ready( function ( ) {
         $hdnSubtitulos.val( textoSubtitulos );
         var textoSubtitulosSrt = templateSubtitulosSrt( { subtitulos: subtitulos });
         $hdnSubtitulosSrt.val(textoSubtitulosSrt);
+        
         $('#tabla-subtitulos').DataTable({
             'language': {
                 'url': '//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json'
@@ -376,7 +393,7 @@ $(document).ready( function ( ) {
         $hasta.val ( subtitulo.hasta );
         $texto.val( subtitulo.texto );
         $botonAgregar.attr('data-index', subtitulo.idx);
-        $comboColor.val(subtitulo.color);
+        $inputColor.val(subtitulo.color);
     }
 
 

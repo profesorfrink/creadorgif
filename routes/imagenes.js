@@ -14,6 +14,7 @@ var dbVideos = new nedb({
     filename: path.join( __dirname, '../db/videos.db'), 
 });
 
+
 router.get('/', function(req, res, next) {
      db.loadDatabase( function (err) { 
         var pagina = req.query.pagina || 1;

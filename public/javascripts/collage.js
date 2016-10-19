@@ -11,12 +11,16 @@ $(document).ready( function () {
     var $contenedorImagenes = $('#contenedorImagenes');
     var $contenedorDialog = $('#contenedorDialog');
     var $modalImagenes = $('#modalImagen');
+    var $panelActivos = $('#panelActivos');
+    var $accionesImagen = $('#accionesImagen');
+    var listaActivos;
 
     var imagenesAgregadas = [];
 
     var tplListaObjetos = Handlebars.compile( $('#tplListaObjetos').html());
     var tplDialogPropiedades = Handlebars.compile( $('#tplDialogPropiedades').html());
 
+    $accionesImagen.hide();
     /**** Comienzo tomar captura****/
     var contadorImagenes = 0;
     var canvas = document.getElementById('canvas');
@@ -47,10 +51,43 @@ $(document).ready( function () {
         'object:selected': selectedObject,
         'selection:cleared': clearedSelection
     });
+
+    $panelActivos.hide();
+    $contenedorImagenes.sortable();
+    $panelActivos.find('img').unveil();
+    
+    var optionsList = {
+        valueNames: [ 'src' ],
+        page: 3,
+        plugins: [
+          ListPagination({})
+        ]
+    };
+
+    listaActivos = new List('panelActivos', optionsList );
+    
+    $panelActivos.on('click', '.js-agregar-imagen', function (e) {
+        e.preventDefault();
+        var $target = $(e.currentTarget);
+        var urlImagen = $target.attr('data-src');
+        fabric.Image.fromURL( urlImagen, function(image) {
+        
+            if ( image.width > 150 ) {
+                var widthAnt = image.width;
+                image.width = 150;
+                image.height = image.height * image.width / widthAnt;
+            }
+            canvasFabric.add(image);
+            canvasFabric.getActiveObject(image);
+        });
+    
+    });
+
     function clearedSelection (e) {
         if (!e.e) return;
 
         $contenedorDialog.dialog('destroy');
+        $contenedorDialog.hide();
     }
     function selectedObject(e) {
         
@@ -71,9 +108,16 @@ $(document).ready( function () {
             my = 'right center'
         }
         
-        $contenedorDialog.dialog({
-            position: { at: my , of : '#canvasFabric' }
-        });
+        if ( !$contenedorDialog.dialog( 'instance' ) ) {
+            $contenedorDialog.dialog({
+                position: {
+                   my: "left",
+                   at: "center",
+                   of: window
+                }
+            });
+        }
+        $contenedorDialog.show();
     }
 
     videoPrincipal.addEventListener('loadedmetadata', inicializarMetadata);
@@ -92,9 +136,9 @@ $(document).ready( function () {
         img.src = canvas.toDataURL();
         
         img.width = imageWidth;
-        img.className += "col-xs-2";
+        img.className += "col-xs-2 ui-state-default";
         contenedorImagenes.appendChild(img);
-   
+        
     } );
 
     Dropzone.options.uploader = {
@@ -133,7 +177,7 @@ $(document).ready( function () {
                     $panel.removeClass('hidden');
                     var $details = $('.dz-details');
                     var img = new Image();
-                    img.src = '/images/' + responseText.filename + '.jpg';
+                    img.src = '/images/' + responseText.filename;
                    
                     fabric.Image.fromURL( img.src, function(image) {
                     image.set({
@@ -154,10 +198,11 @@ $(document).ready( function () {
                         orden: canvasFabric.getObjects().indexOf(image)
                     }
                     objetos.push(objeto);
-                    dibujarTemplateObjetos();
+                    // dibujarTemplateObjetos();
                     imagenesAgregadas.push(image);
                     
                     $modalImagenes.modal('hide');
+                    Dropzone.forElement("#uploader").removeAllFiles(true);
 
                     });
                     
@@ -182,6 +227,12 @@ $(document).ready( function () {
         e.preventDefault();
         videoPrincipal.pause();
         var imagenes = $contenedorImagenes.find('img');
+
+        if ( imagenes.length < 1 ) {
+            alert('Debe agregar al menos una imagen');
+            return false;
+        }
+
         var contadorImagenes = imagenes.length;
         var filas = Math.ceil(contadorImagenes / 2);
 
@@ -228,6 +279,11 @@ $(document).ready( function () {
                             lockMovementY: true,
                             selectable: false
                         });
+
+                        image.toObject = function() {
+                            return {  fijo: true };
+                        };
+
                         canvasFabric.add(image);
                         
                         canvasFabric.setActiveObject(image);
@@ -238,6 +294,12 @@ $(document).ready( function () {
                 $contenedorImagenes.html('');
                 $contenedorImagenes.hide();
                 $panel.removeClass('hidden');
+                $panelActivos.dialog({
+                    width: '30%',
+                    maxWidth: "500px"
+                });
+                $panelActivos.show();
+                $accionesImagen.show();
 
             });
             
@@ -249,6 +311,9 @@ $(document).ready( function () {
        
         try {
             //canvasFabric.setActiveObject( canvasFabric.getObjects()[0]);
+            
+            cambiarBordesObjetos( false );
+            
             var rawImageData = canvasF.toDataURL('image/jpeg', 0.76);
             rawImageData = rawImageData.replace('image/jpeg', 'image/octet-stream');
             var link = document.createElement('a');
@@ -256,12 +321,15 @@ $(document).ready( function () {
             link.href = rawImageData;
             link.click();
             
+            cambiarBordesObjetos( true );
+
+            
         }
         catch (err) {
             
             alert("Sorry, can't download");
         }
-
+        
         return true;
     }
 
@@ -298,7 +366,7 @@ $(document).ready( function () {
         };
         canvasFabric.renderAll();
         canvasFabric.bringToFront(textFabric)
-        dibujarTemplateObjetos();
+        // dibujarTemplateObjetos();
         
     }
 
@@ -332,7 +400,7 @@ $(document).ready( function () {
                 };
                 imagenesAgregadas.push(image);
                 objetos.push(imagen);
-                dibujarTemplateObjetos();
+                // dibujarTemplateObjetos();
                 $modalImagenes.modal('hide');
             });
 
@@ -382,7 +450,7 @@ $(document).ready( function () {
         object.set('left', object.left+5);
         canvasFabric.add(object);
         canvasFabric.renderAll();
-        dibujarTemplateObjetos();
+        // dibujarTemplateObjetos();
     }
 
     $('#contenedorListaObjetos').on('click', '.js-flip-x', function(e) {
@@ -414,7 +482,7 @@ $(document).ready( function () {
         canvasFabric.setActiveObject( canvasFabric.getObjects()[orden] );
         canvasFabric.getActiveObject().remove();
         objetos.splice(idx, 1);
-        dibujarTemplateObjetos();
+        // dibujarTemplateObjetos();
     }).on('change', '.js-cambiar-opacidad', function(e) {
         e.preventDefault();
         var $target = $(e.currentTarget);
@@ -545,15 +613,30 @@ $(document).ready( function () {
             lineHeight: parseFloat(newHeight)
         });
         canvasFabric.renderAll();
-    }).on('click', '.js-front', function(e) {
-        e.preventDefault();
-        canvasFabric.bringToFront(canvasFabric.getActiveObject());
-        canvasFabric.renderAll();
     })
-    .on('click', '.js-back', function(e) {
+    .on('click', '.js-flip-x', function (e) {
         e.preventDefault();
-        canvasFabric.sendToBack(canvasFabric.getActiveObject());
+        var objetoSeleccionado = canvasFabric.getActiveObject();
+        var valorActual = objetoSeleccionado.get('flipX');
+        objetoSeleccionado.set('flipX', !valorActual);
         canvasFabric.renderAll();
+
+    })
+    .on('click', '.js-eliminar', function (e) {
+        e.preventDefault();
+        canvasFabric.getActiveObject().remove();
+        canvasFabric.renderAll();
+        $contenedorDialog.dialog('destroy');
+        $contenedorDialog.hide();
+
+    })    
+    .on('click', '.js-flip-y', function (e) {
+        e.preventDefault();
+        var objetoSeleccionado = canvasFabric.getActiveObject();
+        var valorActual = objetoSeleccionado.get('flipY');
+        objetoSeleccionado.set('flipY', !valorActual);
+        canvasFabric.renderAll();
+
     });
     
     $panel.on('click', '.js-align button', function(e) {
@@ -566,11 +649,29 @@ $(document).ready( function () {
     
 
     function dibujarTemplateObjetos() {
-        var render = tplListaObjetos( { objetos: canvasFabric.getObjects() });
-        $('#contenedorListaObjetos').html(render);
+        // var render = tplListaObjetos( { objetos: canvasFabric.getObjects() });
+        // $('#contenedorListaObjetos').html(render);
+        return false;
+    }
+    function cambiarBordesObjetos ( valor ) {
+      var objetos = canvasFabric.getObjects();
+      _.each( objetos, function( objeto ) {
+
+        var esFijo = objeto.toObject().fijo || false;
+
+        if ( !esFijo ) {
+            objeto.set({
+                hasBorders: valor,
+                hasControls: valor,
+                hasRotatingPoint: valor,
+            });
+        }
+        
+      });
+      canvasFabric.renderAll();
     }
     $contenedorImagenes.on("render", function() {
-        dibujarTemplateObjetos();
+        // dibujarTemplateObjetos();
     });
     $('.js-generar-collage').click( onClickGenerarCollage);
     $('.js-agregar-texto').click( onClickAgregarTexto );

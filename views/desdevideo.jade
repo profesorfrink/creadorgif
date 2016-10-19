@@ -65,14 +65,16 @@ block content
                     form#uploader.dropzone(action="/uploadwm", enctype="multipart/form-data", method="POST")
                       .fallback
                           input(name="file", type="file", multiple)
-                .form-group.hidden
+                    small.text-center La marca de agua se aplicará a la creación del clip, no al gif. Puede crear primero un video con marca de agua y luego un gif a partir del mismo.
+                .form-group
                     label Ubicación
                     select.form-control#cboUbicacion
-                        option(value="0") Noroeste
-                        option(value="1") Noreste
-                        option(value="2") Centrado
-                        option(value="3") Sudeste
+                        option(value="2") Noreste
+                        option(value="1") Noroeste
+                        option(value="0") Centrado
                         option(value="4") Sudoeste
+                        option(value="3") Sudeste
+
                     input(type="hidden")#hdnWatermark
 
         .text-center.center-block()

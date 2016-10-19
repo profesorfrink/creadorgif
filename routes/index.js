@@ -30,6 +30,10 @@ var memes = new nedb({
     filename: path.join( __dirname, '../db/memes.db')
 });
 
+var dbAssets = new nedb({
+    filename: paths.dbAssets
+});
+
 var destino = path.join( __dirname, '../public/videos');
 var destinoImagenes = path.join( __dirname, '../public/images');
 var destinoGifs = path.join( __dirname, '../public/gifs');
@@ -97,16 +101,62 @@ router.get('/', function(req, res, next) {
 
 router.post('/uploadimagen', uploadImage.single('file'), function ( req, res, next ) {
     
-    gm(destinoTemp + '/' + req.file.filename)
-    .resize(1024, 768, '>')
-    .setFormat('jpg')
-    .quality(80)
-    .write( destinoImagenes +'/' + req.file.filename + '.jpg', function(err){
-        if ( err ) {
-            return next(err);
+    // var fileExt = path.extname( req.file.filename );
+    dbAssets.loadDatabase();
+    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+    async.parallel([
+        function ( done ) {
+            gm(destinoTemp + '/' + req.file.filename)
+        // .resize(1024, 768, '>')
+        // .setFormat('jpg')
+            .quality(80)
+            .write( destinoImagenes +'/' + req.file.filename , done);
+        },
+        function ( done ) {
+            gm(destinoTemp + '/' + req.file.filename)
+                .resize(3, 3)
+                .toBuffer('GIF',  done);
+                /*function (error, buffer) {
+                    console.log('data:image/gif;base64,' + buffer.toString('base64'));
+                });*/
         }
-        res.status(200).json(req.file);
+    ], function ( err, resultados ) {
+        if ( err ) {
+            return next ( err );
+        }
+        var buffer = resultados[1];
+        var encode = 'data:image/gif;base64,' + buffer.toString('base64');
+        var datos = req.file;
+        datos.ip = ip;
+        datos.thumbData = encode;
+        
+        dbAssets.insert( datos, function ( err, doc ) {
+            if ( err ) {
+                return next ( err );
+            }
+            res.status(200).json(req.file);
+        });
     });
+    // gm(destinoTemp + '/' + req.file.filename)
+    // // .resize(1024, 768, '>')
+    // // .setFormat('jpg')
+    // .quality(80)
+    // .write( destinoImagenes +'/' + req.file.filename , function(err){
+    //     if ( err ) {
+    //         return next(err);
+    //     }
+    //     var datos = req.file;
+    //     datos.ip = ip;
+        
+    //     dbAssets.insert( datos, function ( err, doc ) {
+    //         if ( err ) {
+    //             return next ( err );
+    //         }
+    //         res.status(200).json(req.file);
+    //     });
+        
+    // });
     
 });
 
@@ -220,7 +270,7 @@ router.post('/generar',  validar.checkDatos, function ( req, res, next ) {
         ip: datos.userKey,
         idVideo: datos.filename
     };
-    if ( datos.watermark.trim() !== 0 ) {
+    if ( datos.watermark.trim() !== '' ) {
         jobData.watermark = datos.watermark;
         jobData.ubicacionWM = datos.ubicacion;
     }
